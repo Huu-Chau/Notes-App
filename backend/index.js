@@ -1,15 +1,13 @@
 require('dotenv').config()
 
 // mongoose
-const config = require('./config.json')
 const mongoose = require('mongoose')
-
-mongoose.connect(config.connectionString)
+mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
 
 // express
 const express = require('express')
 const app = express()
-const port = process.env.PORT
+const port = process.env.PORT || 3000
 
 app.use(express.json())
 
@@ -21,6 +19,8 @@ const loginRouter = require('./routes/login.route')
 // cors
 const cors = require('cors')
 
+// App services
+
 app.use(
     cors({
         origin: '*'
@@ -28,7 +28,7 @@ app.use(
 )
 
 app.get("/", (req, res) => {
-  res.json('hi')
+    res.json('hi')
 })
 
 // Account route
@@ -39,10 +39,6 @@ app.use('/api/login', loginRouter)
 
 // Notes route
 app.use('/api/note', noteRouter)
-
-
-
-
 
 app.listen(port, () => {
     console.log(`Server runs at http://localhost:${port}`)
