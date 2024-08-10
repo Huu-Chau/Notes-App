@@ -6,23 +6,14 @@
 @tailwind utilities;  
 
 @layer components {
-  /* input:-webkit-autofill,
+  input:-webkit-autofill,
   input:-webkit-autofill:hover, 
   input:-webkit-autofill:focus,
   textarea:-webkit-autofill,
   textarea:-webkit-autofill:hover,
   textarea:-webkit-autofill:focus{
-    width: 100%;
-    font-size: .875rem;
-    line-height: 1.25rem;
     background-color: transparent !important;
-    border-width: 1.5px;
-    padding: .75rem 0;
-    margin-right: .75rem;
-    border-radius: .25rem;
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-  } */
+  }
   html {
     font-family: "Poppins", "sans-serif"
   }
