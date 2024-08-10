@@ -3,12 +3,7 @@ const express = require('express')
 const loginRouter = express.Router()
 
 // mongoose
-const mongoose = require('mongoose')
-const config = require('../config.json')
-
 const userModel = require('../models/user.model')
-
-mongoose.connect(config.connectionString)
 
 // jwt
 const jwt = require('jsonwebtoken')

@@ -3,39 +3,34 @@ const express = require('express')
 const accountRouter = express.Router()
 
 // mongoose
-const mongoose = require('mongoose')
-const config = require('../config.json')
-
 const userModel = require('../models/user.model')
 
-mongoose.connect(config.connectionString)
-
 // jwt
-const {authenToken} = require('../utilities')
+const { authenToken } = require('../utilities')
 const jwt = require('jsonwebtoken')
 
 accountRouter.use(express.json())
 
 // create account
 accountRouter.post('', async (req, res) => {
-    const {fullName, email, password} = req.body
+    const { fullName, email, password } = req.body
     // check if user enters data
-    if(!fullName){
-        return res.status(400).json({error: true, message: 'Full name is required!'})
+    if (!fullName) {
+        return res.status(400).json({ error: true, message: 'Full name is required!' })
     }
-    
-    if(!email){
-        return res.status(400).json({error: true, message: 'Email is required!'})
+
+    if (!email) {
+        return res.status(400).json({ error: true, message: 'Email is required!' })
     }
-    
-    if(!password){
-        return res.status(400).json({error: true, message: 'Password is required!'})
+
+    if (!password) {
+        return res.status(400).json({ error: true, message: 'Password is required!' })
     }
 
     // check if exist
-    const isUser = await userModel.findOne({ email: email})
+    const isUser = await userModel.findOne({ email: email })
 
-    if(isUser){
+    if (isUser) {
         return res.json({ error: true, message: 'User already exist!' })
     }
 
@@ -49,7 +44,7 @@ accountRouter.post('', async (req, res) => {
     await user.save()
 
     // also creates an token
-    const accessToken = jwt.sign({user}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1440m'})
+    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1440m' })
 
     return res.json({
         error: false,
@@ -61,16 +56,16 @@ accountRouter.post('', async (req, res) => {
 // search account
 accountRouter.get('', authenToken, async (req, res) => {
     const { user } = req.user
-    const isUser = await userModel.findOne({_id: user._id}).lean()
+    const isUser = await userModel.findOne({ _id: user._id }).lean()
 
-    if(!isUser){
-        return res.status(400).json({error: true, message: 'Cannot found user!'})
+    if (!isUser) {
+        return res.status(400).json({ error: true, message: 'Cannot found user!' })
     }
 
     res.json({
         user: {
             _id: isUser._id,
-            FullName: isUser.fullName, 
+            FullName: isUser.fullName,
             Email: isUser.email,
             Createdin: isUser.createOn
         },
