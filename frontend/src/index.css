@@ -6,14 +6,6 @@
 @tailwind utilities;  
 
 @layer components {
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover, 
-  input:-webkit-autofill:focus,
-  textarea:-webkit-autofill,
-  textarea:-webkit-autofill:hover,
-  textarea:-webkit-autofill:focus{
-    background-color: transparent !important;
-  }
   html {
     font-family: "Poppins", "sans-serif"
   }
