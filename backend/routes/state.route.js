@@ -5,6 +5,57 @@ const stateRouter = express.Router()
 // mongoose
 const stateModel = require('../models/state.model')
 
+// jwt authen
+const { authenToken } = require('../utilities')
+
+// add new state code
+stateRouter.post('', authenToken, async (req, res) => {
+    const { state, type } = req.body
+    const { user } = req.user
+
+    if (!state) {
+        return res.status(400).json({
+            message: 'State is required!',
+            error: true,
+        })
+    }
+
+    try {
+        console.log(`user id: ${user._id}`)
+
+        // Find the highest existing type value
+        const lastState = await stateModel.findOne({}).sort({ type: -1 });
+        const newType = lastState ? lastState.type + 1 : 1;
+
+        const result = await stateModel.create({
+            type: newType,
+            message: state,
+            color: 'red',
+            userId: user._id,
+        });
+
+        if (!result) {
+            return res.status(401).json({
+                error: true,
+                message: 'cannot post state',
+            })
+        }
+        console.log('result: ', result)
+
+        return res.json({
+            message: 'Add state Successfully',
+            result,
+            error: false,
+        })
+    } catch (error) {
+        console.error('Error during state creation:', error)
+        return res.status(500).json({
+            message: 'Internal Server Error',
+            error: true
+        })
+    }
+})
+
 // get all state codes
 stateRouter.get('', async (req, res) => {
     try {
@@ -55,33 +106,6 @@ stateRouter.delete('/:stateId', async (req, res) => {
         return res.status(500).json({
             message: 'Internal Server Error',
             error: true,
-        })
-    }
-})
-
-// add new state code
-stateRouter.post('', async (req, res) => {
-    const { state, type, color } = req.body
-    if (!state) {
-        return res.status(400).json({ message: 'State is required!', error: true })
-    }
-
-    try {
-        const result = await stateModel.create({
-            type: type,
-            message: state,
-            color: color || 'red',
-        })
-
-        return res.json({
-            message: 'Add state Successfully',
-            error: false,
-            result
-        })
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Internal Server Error',
-            error: true
         })
     }
 })

@@ -5,6 +5,7 @@ const stateSchema = new Schema({
     type: { type: Number, unique: true },
     message: { type: String, required: true, unique: true },
     color: { type: String, default: 'red' },
+    userId: { type: String, required: true },
 }, {
     collection: 'states'
 })
