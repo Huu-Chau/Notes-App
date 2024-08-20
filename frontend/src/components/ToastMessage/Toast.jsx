@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import {LuCheck, } from 'react-icons/lu'
+import { LuCheck, } from 'react-icons/lu'
 import { MdDeleteOutline } from 'react-icons/md'
 // parent: Home
-function Toast({isShown, type, message, onClose}) {
+function Toast({ isShown, type, message, onClose }) {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       onClose()
@@ -13,27 +13,24 @@ function Toast({isShown, type, message, onClose}) {
   }, [onClose])
 
   return (
-    <div 
-      className={`absolute top-20 right-6 transition-all duration-300 ${
-        isShown ? 'opacity-100' : 'opacity-0'
-      }`}>
-      <div 
-        className={`min-w-52 bg-white border shadow-2xl rounded-md after:w-[5px] after:h-full ${
-          type === 'delete' ? 'after:bg-red-500' : 'after:bg-green-500'
-        } after:absolute after:left-0 after:top-0 after:rounded-l-lg`}
+    <div
+      className={`fixed top-20 right-6 transition-all duration-300 ${isShown ? 'opacity-100' : 'opacity-0'
+        }`}>
+      <div
+        className={`min-w-52 bg-white border shadow-2xl rounded-md after:w-[5px] after:h-full ${type === 'delete' ? 'after:bg-red-500' : 'after:bg-green-500'
+          } after:fixed after:left-0 after:top-0 after:rounded-l-lg`}
       >
         <div className="flex items-center gap3 py-2 px-4">
-            <div className={`w-10 h-10 flex items-center justify-center rounded-full ${
-              type === 'delete' ? 'bg-red-50' : 'bg-green-50'
+          <div className={`w-10 h-10 flex items-center justify-center rounded-full ${type === 'delete' ? 'bg-red-50' : 'bg-green-50'
             }`}>
             {type === 'delete' ?
-              <MdDeleteOutline className='text-xl text-red-500'/>
+              <MdDeleteOutline className='text-xl text-red-500' />
               :
-              <LuCheck className='text-xl text-green-500'/>  
+              <LuCheck className='text-xl text-green-500' />
             }
-            </div>
+          </div>
 
-            <p className="text-sm text-slate-800"> {message}</p>
+          <p className="text-sm text-slate-800"> {message}</p>
         </div>
       </div>
     </div>

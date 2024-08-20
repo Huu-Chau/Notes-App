@@ -102,28 +102,18 @@ noteRouter.patch('/:noteId', authenToken, async (req, res) => {
             return res.status(404).json({ error: true, message: 'No state found' })
         }
         // insert value
-        // note.title = title || note.title;
-        // note.content = content || note.content;
-        // note.tags = tags || note.tags;
-        // note.isPinned = isPinned !== undefined ? isPinned : note.isPinned;
-        // note.state = stateObject?._id || note.state;
-
-        // Object to track the updated fields
-        let updatedFields = {};
-
-        // Chain conditions to check and update
-        (title !== undefined && title !== note.title) && (updatedFields.title = note.title = title);
-        (content !== undefined && content !== note.content) && (updatedFields.content = note.content = content);
-        (tags !== undefined && tags !== note.tags) && (updatedFields.tags = note.tags = tags);
-        (isPinned !== undefined && isPinned !== note.isPinned) && (updatedFields.isPinned = note.isPinned = isPinned);
-        (stateObject && stateObject._id !== note.state) && (updatedFields.state = note.state = stateObject._id);
-
+        note.title = title || note.title;
+        note.content = content || note.content;
+        note.tags = tags || note.tags;
+        note.isPinned = isPinned !== undefined ? isPinned : note.isPinned;
+        note.state = stateObject?._id || note.state;
 
         await note.save()
 
         return res.status(200).json({
             message: 'update note successfully',
-            updatedFields,
+            note: note || null,
+            stateObject: stateObject || null,
             error: false,
         })
     } catch (error) {

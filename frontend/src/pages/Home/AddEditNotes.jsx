@@ -58,6 +58,7 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
                 console.log('No note found that matches you input')
             }
         }
+
         try {
             const response = await axiosInstance.patch(`/api/note/${noteId}`, {
                 title,
@@ -66,7 +67,7 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
                 state,
             })
 
-            if (response.data && response.data.note) {
+            if (response.data && (response.data.note || response.data.stateObject)) {
                 handleShowToast('Note Updated Successfully!', 'add')
                 getAllNotes()
                 onClose()

@@ -149,7 +149,7 @@ function Home() {
   }
 
   // show state to display 
-  const showState = async () => {
+  const getAllStates = async () => {
     try {
       const response = await axiosInstance.get(`/api/state/`)
       if (response.data && response.data.message) {
@@ -224,7 +224,7 @@ function Home() {
   }, [])
 
   useEffect(() => {
-    showState()
+    getAllStates()
   }, [])
   return (
     <>
@@ -288,7 +288,7 @@ function Home() {
             setOpenCustomModal({ isShown: false, data: null })
           }}
           stateData={allStates.states}
-          getAllStates={showState}
+          getAllStates={getAllStates}
         />
       </Modal>
 
@@ -300,7 +300,7 @@ function Home() {
           })
         }}
       >
-        <h4 className='text-xs text-slate-50'>Add Custom allStates</h4>
+        <h4 className='text-xs text-slate-50'>Add Custom State</h4>
       </button>
 
       {/* 2nd */}

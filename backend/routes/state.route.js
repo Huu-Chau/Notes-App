@@ -10,7 +10,7 @@ const { authenToken } = require('../utilities')
 
 // add new state code
 stateRouter.post('', authenToken, async (req, res) => {
-    const { state, type } = req.body
+    const { state } = req.body
     const { user } = req.user
 
     if (!state) {
@@ -57,15 +57,16 @@ stateRouter.post('', authenToken, async (req, res) => {
 })
 
 // get all state codes
-stateRouter.get('', async (req, res) => {
+stateRouter.get('', authenToken, async (req, res) => {
+    const { user } = req.user
     try {
-        const states = await stateModel.find({})
-        if (states.length === 0) {
-            return res.status(400).json({
-                message: 'No state found',
-                error: true,
-            })
-        }
+        const states = await stateModel.find({
+            $or: [
+                { userId: user._id },
+                { userId: { $exists: false } },
+            ]
+        })
+
         return res.json({
             message: 'State found successfully',
             error: false,
@@ -82,7 +83,6 @@ stateRouter.get('', async (req, res) => {
 // delete one state code
 stateRouter.delete('/:stateId', async (req, res) => {
     const { stateId } = req.params
-    console.log(stateId)
     if (!stateId || stateId == '') {
         return res.status(400).json({
             message: 'Please enter valid state',
