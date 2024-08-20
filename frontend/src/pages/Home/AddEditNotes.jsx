@@ -4,14 +4,24 @@ import { MdClose } from 'react-icons/md';
 import { axiosInstance } from '../../utils/axiosInstance';
 // parent: Home
 const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handleShowToast }) => {
-    const [title, setTitle] = useState(noteData?.title ?? '')
-    const [content, setContent] = useState(noteData?.content ?? '')
-    const [tags, setTags] = useState(noteData?.tags ?? [])
-    const [state, setstate] = useState(noteData?.state?.message ?? 'Will be done')
     const [error, setError] = useState(null)
+    const previousDataInput = {
+        title: noteData?.title ?? '',
+        content: noteData?.content ?? '',
+        tags: noteData?.tags ?? [],
+        state: noteData?.state?.message ?? 'Will be done',
+    }
+
+    const [dataInput, setDataInput] = useState({
+        title: noteData?.title ?? '',
+        content: noteData?.content ?? '',
+        tags: noteData?.tags ?? [],
+        state: noteData?.state?.message ?? 'Will be done',
+    })
 
     // handle note create
     const handleAddNote = () => {
+        const { title, content } = dataInput
         if (!title) {
             setError('Please enter the title')
             return
@@ -30,6 +40,8 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
 
     // add new note
     const addNewNote = async () => {
+        const { title, content, tags, state, } = dataInput
+
         try {
             const response = await axiosInstance.post('/api/note', {
                 title,
@@ -52,20 +64,15 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
 
     // edit current note
     const editNote = async () => {
-        const noteId = noteData._id
+        const noteId = noteData?._id
         if (!noteId) {
             return () => {
                 console.log('No note found that matches you input')
             }
         }
-
         try {
-            const response = await axiosInstance.patch(`/api/note/${noteId}`, {
-                title,
-                content,
-                tags,
-                state,
-            })
+            const payload = compareToPutInPayload()
+            const response = await axiosInstance.patch(`/api/note/${noteId}`, payload)
 
             if (response.data && (response.data.note || response.data.stateObject)) {
                 handleShowToast('Note Updated Successfully!', 'add')
@@ -80,6 +87,35 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
             }
         }
     }
+    // longest compare func avaiable
+    const compareToPutInPayload = () => {
+        const { title, content, tags, state } = dataInput
+        const currentField = { title, content, tags, state }
+        let updateField = {}
+        for (const key in currentField) {
+            if (currentField[key] !== previousDataInput[key]) {
+                updateField[key] = currentField[key];
+            }
+        }
+        return updateField
+    }
+
+    // Function to handle input changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setDataInput(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
+    };
+
+    const handleTagsInputChange = (value) => {
+        setDataInput(prevData => ({
+            ...prevData,
+            tags: value,
+        }));
+    };
+    // 
     return (
         <div className='relative'>
             <button className='w-10 h-10 rounded-full flex items-center justify-center absolute -top-3 -right-3 hover:bg-slate-100'>
@@ -90,26 +126,28 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
                 <label className="input-label">TITLE</label>
                 <input
                     type="text"
+                    name='title'
                     className='text-2xl text-slate-950 outline-none'
                     placeholder='Finish MERN project tomorrow'
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
+                    value={dataInput.title}
+                    onChange={e => { handleInputChange(e) }}
                 />
             </div>
             <div className="add-container mt-3">
                 <label className="input-label">Content</label>
                 <textarea
                     type='text'
+                    name='content'
                     className="text-sm text-slate-950 outline-none bg-slate-50 rounded-md"
                     placeholder='Content'
                     rows={8}
-                    value={content}
-                    onChange={e => setContent(e.target.value)}
+                    value={dataInput.content}
+                    onChange={e => { handleInputChange(e) }}
                 />
             </div>
             <div className="mt-3 flex flex-col gap-2">
                 <label className="input-label">state</label>
-                <select onChange={e => { setstate(e.target.value) }}>
+                <select name='state' onChange={e => { handleInputChange(e) }}>
                     {stateValue.map((stateParams, index) => (
                         <option
                             key={index}
@@ -120,7 +158,7 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
             </div>
             <div className="mt-3">
                 <label className="input-label">TAGS</label>
-                <TagInput tags={tags} setTags={setTags} />
+                <TagInput tags={dataInput.tags} setTags={handleTagsInputChange} />
             </div>
             {error && <p className='text-red-500 text-xs pt-4'>{error}</p>}
             <button className='btn-primary font-medium mt-5 p-3' onClick={() => { handleAddNote() }}>
