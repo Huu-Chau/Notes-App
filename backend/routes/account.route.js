@@ -5,9 +5,11 @@ const accountRouter = express.Router()
 // mongoose
 const userModel = require('../models/user.model')
 
-// jwt
-const { authenToken } = require('../utilities')
+// jwt & hash
+const { authenToken, hashPassword } = require('../utilities')
 const jwt = require('jsonwebtoken')
+
+require('dotenv').config
 
 accountRouter.use(express.json())
 
@@ -34,11 +36,13 @@ accountRouter.post('', async (req, res) => {
         return res.json({ error: true, message: 'User already exist!' })
     }
 
+    const hashPass = await hashPassword(password)
+
     // insert a new db model and saves it
     const user = new userModel({
         fullName,
         email,
-        password
+        password: hashPass,
     })
 
     await user.save()

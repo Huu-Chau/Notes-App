@@ -21,6 +21,7 @@ const loginRouter = require('./routes/login.route')
 
 // cors
 const cors = require('cors')
+// carefull of this
 
 // App services
 
@@ -30,8 +31,8 @@ app.use(
     })
 )
 
-app.get("/", (req, res) => {
-    res.json('hi')
+app.get("/bing", (req, res) => {
+    res.json('bong')
 })
 
 // Account route

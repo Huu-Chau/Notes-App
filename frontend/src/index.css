@@ -39,7 +39,7 @@
   }
 
   .add-container {
-    @apply flex flex-col gap-2
+    @apply flex flex-col gap-2 overflow-auto
   }
 
   .input-label {
@@ -48,5 +48,7 @@
 }
 
 @layer utilities {
-  
+  .add-container::-webkit-scrollbar{
+    display: none;
+  }
 }

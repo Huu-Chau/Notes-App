@@ -53,6 +53,11 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
     // edit current note
     const editNote = async () => {
         const noteId = noteData._id
+        if (!noteId) {
+            return () => {
+                console.log('No note found that matches you input')
+            }
+        }
         try {
             const response = await axiosInstance.patch(`/api/note/${noteId}`, {
                 title,
@@ -60,7 +65,7 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
                 tags,
                 state,
             })
-            console.log(response.data)
+
             if (response.data && response.data.note) {
                 handleShowToast('Note Updated Successfully!', 'add')
                 getAllNotes()
@@ -69,11 +74,11 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message) {
                 setError(error.response.data.message)
+            } else {
+                console.log(error)
             }
         }
     }
-
-    console.log(type)
     return (
         <div className='relative'>
             <button className='w-10 h-10 rounded-full flex items-center justify-center absolute -top-3 -right-3 hover:bg-slate-100'>

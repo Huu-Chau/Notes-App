@@ -26,7 +26,6 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
     const addNewState = async () => {
         try {
             const response = await axiosInstance.post('/api/state', {
-                type: allState.length + 1,
                 state: stateValue,
             })
 
@@ -60,8 +59,6 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
     // handle function to drag and drop
     const handleDragEnd = (event) => {
         const { active, over } = event
-        console.log(allState)
-        console.log(event)
         if (over && over.id !== active.id) {
             setAllState(items => {
                 const oldIndex = items.findIndex(item => item._id === active.id)
@@ -73,7 +70,6 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
 
     useEffect(() => {
         setAllState(stateData)
-        console.log(allState)
     }, [stateData])
 
     return (
@@ -113,9 +109,7 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
                         </SortableContext>
                     </div>
                 </DndContext>
-
             </div>
-
             {error && <p className='text-red-600 mt-2'>{error}</p>}
         </div >
     )

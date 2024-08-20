@@ -10,6 +10,8 @@ import Toast from '../../components/ToastMessage/Toast'
 import EmptyCard from '../../components/EmptyCard/EmptyCard'
 import imgSrc from '../../assets/images/empty-note.png'
 import AddCustomState from './AddCustomState'
+import { closestCenter, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove, rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 // Parent: App
 export const userInfoContext = createContext()
 
@@ -103,6 +105,7 @@ function Home() {
 
   // edit note in NoteCard
   const onEdit = (noteDetails) => {
+    console.log('onedit')
     setOpenAddEditModal({
       isShown: true,
       type: 'edit',
@@ -129,21 +132,16 @@ function Home() {
   // pin note in NoteCard
   const onPinToggle = async (data) => {
     const noteId = data._id
+    console.log(data.isPinned)
     try {
       const response = await axiosInstance.patch(`/api/note/${noteId}`, {
-        title: data.title,
-        content: data.content,
-        tags: data.tags,
-        state: data.state.message,
         isPinned: !data.isPinned,
       })
-      console.log(response.data)
-
       if (response.data && response.data.message) {
         getAllNotes()
       }
     } catch (error) {
-      console.log('Something is wrong in the Pin toggle')
+      console.log(error?.response?.data?.message || 'Something is wrong in the Pin toggle')
     }
   }
 
@@ -190,6 +188,38 @@ function Home() {
     })
   }
 
+  ////////////////////  DND KIT ////////////////////////////
+
+  // handle function to drag and drop
+  const handleDragEnd = (event) => {
+    const { active, over } = event
+    if (over && over.id !== active.id) {
+      setAllNotes(items => {
+        const oldIndex = items.findIndex(item => item._id === active.id)
+        const newIndex = items.findIndex(item => item._id === over.id)
+        return arrayMove(items, oldIndex, newIndex)
+      })
+    }
+  }
+
+  // sensor on when to click and when to drag
+  // const sensors = useSensors(
+  //   useSensor(PointerSensor, {
+  //     activationConstraint: {
+  //       distance: 5, // Prevent dragging until moved by at least 5px
+  //     },
+  //     // Prevent dragging when clicking on buttons
+  //     eventOptions: {
+  //       preventDefault: true, // Optional: prevent default events for better control
+  //     },
+  //     // Custom function to filter drag triggers
+  //     filterTaps: (event) => {
+  //       const isButtonClick = event.target.closest('button');
+  //       return !isButtonClick;
+  //     },
+  //   })
+  // );
+
   useEffect(() => {
     getAllNotes()
     getUserInfo()
@@ -203,15 +233,21 @@ function Home() {
       <userInfoContext.Provider value={userInfo}>
         <Navbar onSearchNotes={onSearchNotes} handleClearSearch={handleClearSearch} />
       </userInfoContext.Provider>
+      {/* <DndContext
+        onDragEnd={handleDragEnd}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext items={allNotes.map(note => note._id)} sensors={sensors}> */}
       <div className='container mx-auto'>
         {allNotes.length > 0 ?
-          <div className='grid grid-cols-3 gap-4 mt-8'>
-            {allNotes.map((note, index) => {
+          <div className='grid grid-cols-3 gap-4 m-8'>
+            {allNotes.map((note) => {
               const stateMessage = note.state ? note.state.message : '';
               const stateColor = note.state ? note.state.color : '';
               return (
                 <NoteCard
-                  key={index}
+                  key={note._id}
+                  id={note._id}
                   note={note}
                   tags={[note.tags]}
                   stateMessage={stateMessage}
@@ -231,7 +267,11 @@ function Home() {
             }
           />
         }
+        <div className="w-auto h-1/6"></div>
       </div>
+      {/* </SortableContext>
+      </DndContext> */}
+
 
       {/* 1st */}
       <Modal
@@ -243,7 +283,7 @@ function Home() {
           }
         }}
         contentLabel=''
-        className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5'
+        className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5 overflow-auto'
       >
         <AddCustomState
           onClose={() => {
@@ -275,7 +315,7 @@ function Home() {
           }
         }}
         contentLabel=''
-        className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5'
+        className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5 overflow-auto'
       >
         <AddEditNotes
           onClose={() => {

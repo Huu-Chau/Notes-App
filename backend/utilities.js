@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt');
 
 function authenToken(req, res, next) {
     const authHeader = req.headers['authorization']
@@ -13,4 +14,22 @@ function authenToken(req, res, next) {
     })
 }
 
-module.exports = { authenToken }
+async function hashPassword(password) {
+    // encode the password
+    const saltRounds = parseInt(process.env.SALT_ROUND); // You can increase this for more security
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // check if it exists
+    if (!hashedPassword) {
+        return res.json({ error: true, message: 'Something went wrong!! No hash found!' })
+    }
+
+    return hashedPassword
+}
+
+async function comparePassword(password, hashedPassword) {
+    const match = await bcrypt.compare(password, hashedPassword);
+    return match;
+}
+
+module.exports = { authenToken, hashPassword, comparePassword }

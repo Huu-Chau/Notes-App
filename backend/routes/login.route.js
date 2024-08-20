@@ -8,6 +8,11 @@ const userModel = require('../models/user.model')
 // jwt
 const jwt = require('jsonwebtoken')
 
+// hash
+const { hashPassword, comparePassword } = require('../utilities')
+
+require('dotenv').config
+
 // login acc
 loginRouter.post('', async (req, res) => {
     const { email, password } = req.body
@@ -28,32 +33,35 @@ loginRouter.post('', async (req, res) => {
         return res.json({ message: 'User not found!', error: true, })
     }
 
+    const passwordValidate = await comparePassword(password, userInfo.password)
+
     // check account valid, yes = data, false = error
-    if (userInfo.email == email) {
-        if (userInfo.password == password) {
-            const user = {
-                user: userInfo
-            }
-
-            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1440m" })
-
-            return res.json({
-                message: 'Login Sucessful',
-                accessToken,
-                error: false,
-            })
-        } else {
-            return res.json({
-                message: 'Wrong password!',
-                error: true,
-            })
-        }
-    } else {
+    if (userInfo.email !== email) {
         return res.status(400).json({
             message: 'Invalid credentials',
             error: true,
         })
     }
+
+    if (!passwordValidate) {
+        return res.json({
+            message: 'Wrong password!',
+            error: true,
+        })
+    }
+
+    const user = {
+        user: userInfo
+    }
+
+    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1440m" })
+
+    return res.json({
+        message: 'Login Sucessful',
+        accessToken,
+        userId: userInfo._id,
+        error: false,
+    })
 })
 
 module.exports = loginRouter

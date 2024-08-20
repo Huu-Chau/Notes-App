@@ -22,7 +22,6 @@ noteRouter.post('', authenToken, async (req, res) => {
         return res.status(400).json({ error: true, message: 'Content is required!' })
     }
     const stateName = await stateModel.findOne({ message: state })
-    console.log(stateName._id)
     try {
         const note = new noteModel({
             title,
@@ -32,7 +31,6 @@ noteRouter.post('', authenToken, async (req, res) => {
             state: stateName._id,
             isPinned: false
         })
-        console.log(note)
         await note.save()
 
         return res.json({
@@ -82,35 +80,44 @@ noteRouter.patch('/:noteId', authenToken, async (req, res) => {
     const { user } = req.user
     const { noteId } = req.params
 
-    // check if user enters data
-    if (!title && !content && !tags && !state && !isPinned) {
-        return res.status(400).json({ error: true, message: 'No changes provided' })
+    if (!noteId) {
+        return res.status(404).json({
+            message: 'Cannot found the note required',
+            error: true,
+        })
     }
 
     try {
-        const [stateId, note] = await Promise.all([
-            stateModel.findOne({ message: state }),
-            noteModel.findOne({ _id: noteId, userId: user._id })
-        ]);
+        const [note, stateObject] = await Promise.all([
+            noteModel.findOne({ _id: noteId, userId: user._id }),
+            stateModel.findOne({ message: state })
+        ])
 
+        // unhappy cases
         if (!note) {
             return res.status(404).json({ error: true, message: 'No note found' })
         }
 
+        if (!stateObject && state) {
+            return res.status(404).json({ error: true, message: 'No state found' })
+        }
+        // insert value
+        note.title = title || note.title;
         note.content = content || note.content;
         note.tags = tags || note.tags;
-        note.isPinned = !note.isPinned || isPinned
-        note.state = stateId._id || note.state;
+        note.isPinned = isPinned !== undefined ? isPinned : note.isPinned;
+        note.state = stateObject?._id || note.state;
 
         await note.save()
 
-        return res.json({
-            message: 'Note update Successfully',
-            note,
+        return res.status(200).json({
+            message: 'update note successfully',
+            note: note || null,
+            stateObject: stateObject || null,
             error: false,
         })
-
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Internal Server Error',
             error: true,
@@ -123,14 +130,19 @@ noteRouter.delete('/:noteId', authenToken, async (req, res) => {
     const { user } = req.user
     const { noteId } = req.params
 
+    if (!noteId) {
+        return res.status(404).json({
+            message: 'Cannot found the note required',
+            error: true,
+        })
+    }
+
     try {
         const note = await noteModel.findOneAndDelete({ _id: noteId, userId: user._id })
 
         if (!note) {
             return res.status(400).json({ error: true, message: 'No note found' })
         }
-
-        // await note.deleteOne({ _id: noteId, userId: user._id })
 
         return res.json({
             message: 'Delete note Successfully',
