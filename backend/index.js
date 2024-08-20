@@ -15,6 +15,7 @@ app.use(express.json())
 
 // express routes
 const noteRouter = require('./routes/note.route')
+const stateRouter = require('./routes/state.route')
 const accountRouter = require('./routes/account.route')
 const loginRouter = require('./routes/login.route')
 
@@ -41,6 +42,9 @@ app.use('/api/login', loginRouter)
 
 // Notes route
 app.use('/api/note', noteRouter)
+
+// Notes route
+app.use('/api/state', stateRouter)
 
 app.listen(port, () => {
     console.log(`Server runs at http://localhost:${port}`)

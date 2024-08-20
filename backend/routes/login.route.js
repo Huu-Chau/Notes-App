@@ -14,18 +14,18 @@ loginRouter.post('', async (req, res) => {
 
     // check if user enters data
     if (!email) {
-        return res.status(400).json({ error: true, message: 'Email is required!' })
+        return res.status(400).json({ message: 'Email is required!', error: true, })
     }
 
     if (!password) {
-        return res.status(400).json({ error: true, message: 'Password is required!' })
+        return res.status(400).json({ message: 'Password is required!', error: true, })
     }
 
     // check if email is existing
     const userInfo = await userModel.findOne({ email: email })
 
     if (!userInfo) {
-        return res.json({ error: true, message: 'User not found!' })
+        return res.json({ message: 'User not found!', error: true, })
     }
 
     // check account valid, yes = data, false = error
@@ -38,20 +38,20 @@ loginRouter.post('', async (req, res) => {
             const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1440m" })
 
             return res.json({
-                error: false,
                 message: 'Login Sucessful',
-                accessToken
+                accessToken,
+                error: false,
             })
         } else {
             return res.json({
+                message: 'Wrong password!',
                 error: true,
-                message: 'Wrong password!'
             })
         }
     } else {
         return res.status(400).json({
+            message: 'Invalid credentials',
             error: true,
-            message: 'Invalid credentials.'
         })
     }
 })

@@ -1,38 +1,49 @@
 import React from 'react'
-import {MdOutlinePushPin, MdCreate, MdDelete} from 'react-icons/md'
+import { MdOutlinePushPin, MdCreate, MdDelete } from 'react-icons/md'
 import moment from 'moment'
 // parent: Home
-const NoteCard = ({ title, date, content, tags, isPinned, onEdit, onDelete, onPinNote}) => {
-    return (
-    <div className='border rounded p-4 bg-white hover:shadow-xl transition-all ease-in-out'>
-        <div className="flex items-center justify-between">
-            <div>
-                <h6 className="text-sm font-semibold">{title}</h6>
-                <span className="text-xs text-slate-500 font-medium">{moment(date).format('Do MMM YYYY')}</span>
-            </div>
-            <MdOutlinePushPin className={`icon-btn ${isPinned ? 'text-primary' : 'text-slate-300'}`} onClick={onPinNote}/>
-        </div>
-        <p className="text-xs text-slate-600 mt-2 font-semibold">{content?.slice(0,60)}...</p>
+const NoteCard = ({ note, tags, stateMessage, stateColor, onEdit, onDelete, onPinToggle }) => {
+    const { title, date, content, isPinned } = note
 
-        <div className="flex items-center justify-between mt-2">
-            <div className="text-xs text-slate-500 font-medium">
-                {tags[0].map((tag, ) => (
-                    `#${tag} `
-                ))}
+    const colorNameToHex = (color) => {
+        const ctx = document.createElement('canvas').getContext('2d');
+        ctx.fillStyle = color;
+        return ctx.fillStyle;
+    }
+
+    return (
+        <div className='border rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'>
+            <span className={`absolute w-22 top-2 right-3  text-slate-800 rounded-md text-xs px-2 bg-[${colorNameToHex(stateColor)}]`}>
+                {stateMessage}
+            </span>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h6 className="text-sm font-semibold">{title}</h6>
+                    <span className="text-xs text-slate-500 font-medium">{moment(date).format('Do MMM YYYY')}</span>
+                </div>
+                <MdOutlinePushPin className={`icon-btn ${isPinned ? 'text-primary' : 'text-slate-300'}`} onClick={onPinToggle} />
             </div>
-            <div className="flex items-center gap-2">
-                <MdCreate
-                    className='icon-btn hover:text-green-600'
-                    onClick={onEdit}
-                />
-                <MdDelete
-                    className='icon-btn hover:text-red-600'
-                    onClick={onDelete}
-                />
+            <p className="text-xs text-slate-600 mt-2 font-semibold">{content?.slice(0, 60)}...</p>
+
+            <div className="flex items-center justify-between mt-2">
+                <div className="text-xs text-slate-500 font-medium">
+                    {tags[0].map((tag,) => (
+                        `#${tag} `
+                    ))}
+                </div>
+                <div className="flex items-center gap-2">
+                    <MdCreate
+                        className='icon-btn hover:text-green-600'
+                        onClick={onEdit}
+                    />
+                    <MdDelete
+                        className='icon-btn hover:text-red-600'
+                        onClick={onDelete}
+                    />
+                </div>
             </div>
-        </div>
-    </div>
-  )
+        </div >
+    )
 }
 
 export default NoteCard

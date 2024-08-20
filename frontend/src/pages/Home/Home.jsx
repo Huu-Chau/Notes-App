@@ -1,7 +1,7 @@
 import Modal from 'react-modal'
 import { MdAdd } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, createContext } from 'react'
 import AddEditNotes from './AddEditNotes'
 import { axiosInstance } from '../../utils/axiosInstance'
 import NoteCard from '../../components/Cards/NoteCard'
@@ -9,12 +9,21 @@ import Navbar from '../../components/Navbar/Navbar'
 import Toast from '../../components/ToastMessage/Toast'
 import EmptyCard from '../../components/EmptyCard/EmptyCard'
 import imgSrc from '../../assets/images/empty-note.png'
+import AddCustomState from './AddCustomState'
 // Parent: App
+export const userInfoContext = createContext()
+
 function Home() {
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
     type: 'add',
     data: null
+  })
+
+  const [openCustomModal, setOpenCustomModal] = useState({
+    isShown: false,
+    type: 'add',
+    data: null,
   })
 
   const [showToastMsg, setShowToastMsg] = useState({
@@ -23,10 +32,13 @@ function Home() {
     message: ''
   })
 
-  const [allNotes, setAllNotes] = useState([])
   const [userInfo, setUserInfo] = useState(null)
-
   const [isSearch, setIsSearch] = useState(false)
+
+  const [allNotes, setAllNotes] = useState([])
+
+  const [allStates, setAllStates] = useState([])
+
 
   const navigate = useNavigate()
 
@@ -37,7 +49,7 @@ function Home() {
     try {
       const response = await axiosInstance.get('/api/note')
 
-      if (response.data && response.data.notes) {
+      if (response.data && response.data.notes.length > 0) {
         setAllNotes(response.data.notes)
       }
     } catch (error) {
@@ -51,9 +63,9 @@ function Home() {
       const response = await axiosInstance.get(`/api/note/search`, {
         params: { query }
       })
-
       if (response.data && response.data.matchingNotes) {
         setIsSearch(true)
+        handleShowToast(`Found ${response.data.matchingNotes.length} notes that match your search`, 'search')
         setAllNotes(response.data.matchingNotes)
       }
     } catch (error) {
@@ -113,21 +125,25 @@ function Home() {
     }
 
   }
+
   // pin note in NoteCard
-  const onPinNote = async (data) => {
+  const onPinToggle = async (data) => {
     const noteId = data._id
     try {
-      const response = await axiosInstance.put(`/api/note/${noteId}/pin`, {
-        "isPinned": !data.isPinned
+      const response = await axiosInstance.patch(`/api/note/${noteId}`, {
+        title: data.title,
+        content: data.content,
+        tags: data.tags,
+        state: data.state.message,
+        isPinned: !data.isPinned,
       })
+      console.log(response.data)
 
       if (response.data && response.data.message) {
-        handleShowToast('Note update successfully!')
         getAllNotes()
-        onClose()
       }
     } catch (error) {
-      console.log(error.response.data.message)
+      console.log('Something is wrong in the Pin toggle')
     }
   }
 
@@ -135,6 +151,25 @@ function Home() {
   const closeEditNotes = () => {
     setOpenAddEditModal(!openAddEditModal.isShown)
   }
+
+  // show state to display 
+  const showState = async () => {
+    try {
+      const response = await axiosInstance.get(`/api/state/`)
+      if (response.data && response.data.message) {
+        setAllStates(response.data)
+      }
+    }
+    catch (error) {
+      console.log(error.response.data.message)
+    }
+  }
+
+  // close edit state
+  const closeEditState = () => {
+    setOpenCustomModal(!openCustomModal.isShown)
+  }
+
 
   //////////     Toast      ///////////////
 
@@ -155,32 +190,38 @@ function Home() {
     })
   }
 
-
   useEffect(() => {
     getAllNotes()
     getUserInfo()
-    return () => { }
   }, [])
 
+  useEffect(() => {
+    showState()
+  }, [])
   return (
     <>
-      <Navbar userInfo={userInfo} onSearchNotes={onSearchNotes} handleClearSearch={handleClearSearch} />
+      <userInfoContext.Provider value={userInfo}>
+        <Navbar onSearchNotes={onSearchNotes} handleClearSearch={handleClearSearch} />
+      </userInfoContext.Provider>
       <div className='container mx-auto'>
         {allNotes.length > 0 ?
           <div className='grid grid-cols-3 gap-4 mt-8'>
-            {allNotes.map((note, index) => (
-              <NoteCard
-                key={index}
-                title={note.title}
-                date={note.createOn}
-                content={note.content}
-                tags={[note.tags]}
-                isPinned={note.isPinned}
-                onEdit={() => { onEdit(note) }}
-                onDelete={() => { onDelete(note._id) }}
-                onPinNote={() => { onPinNote(note) }}
-              />
-            ))}
+            {allNotes.map((note, index) => {
+              const stateMessage = note.state ? note.state.message : '';
+              const stateColor = note.state ? note.state.color : '';
+              return (
+                <NoteCard
+                  key={index}
+                  note={note}
+                  tags={[note.tags]}
+                  stateMessage={stateMessage}
+                  stateColor={stateColor}
+                  onEdit={() => { onEdit(note) }}
+                  onDelete={() => { onDelete(note._id) }}
+                  onPinToggle={() => { onPinToggle(note) }}
+                />
+              )
+            })}
           </div> :
           <EmptyCard
             imgSrc={imgSrc}
@@ -192,19 +233,39 @@ function Home() {
         }
       </div>
 
-      <button className='w-16 h-16 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-600 fixed right-10 bottom-10'
+      {/* 1st */}
+      <Modal
+        isOpen={openCustomModal.isShown}
+        onRequestClose={() => { closeEditState() }}
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0,0,0,0.2)'
+          }
+        }}
+        contentLabel=''
+        className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5'
+      >
+        <AddCustomState
+          onClose={() => {
+            setOpenCustomModal({ isShown: false, data: null })
+          }}
+          stateData={allStates.states}
+          getAllStates={showState}
+        />
+      </Modal>
+
+      <button className='w-42 h-8 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-600 fixed right-40 bottom-10 p-1'
         onClick={() => {
-          setOpenAddEditModal({
+          setOpenCustomModal({
             isShown: true,
-            type: 'add',
             data: null
           })
         }}
-
       >
-        <MdAdd className='text-[32px] text-slate-50' />
+        <h4 className='text-xs text-slate-50'>Add Custom allStates</h4>
       </button>
 
+      {/* 2nd */}
       <Modal
         isOpen={openAddEditModal.isShown}
         onRequestClose={() => { closeEditNotes() }}
@@ -214,7 +275,7 @@ function Home() {
           }
         }}
         contentLabel=''
-        className='w-[40%] max-h-[75%] bg-slate-50 rounded-md mx-auto mt-14 p-5'
+        className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5'
       >
         <AddEditNotes
           onClose={() => {
@@ -222,10 +283,23 @@ function Home() {
           }}
           noteData={openAddEditModal.data}
           type={openAddEditModal.type}
+          stateValue={allStates.states}
           getAllNotes={getAllNotes}
           handleShowToast={handleShowToast}
         />
       </Modal>
+
+      <button className='w-16 h-16 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-600 fixed right-10 bottom-10'
+        onClick={() => {
+          setOpenAddEditModal({
+            isShown: true,
+            type: 'add',
+            data: null
+          })
+        }}
+      >
+        <MdAdd className='text-[32px] text-slate-50' />
+      </button>
 
       <Toast
         isShown={showToastMsg.isShown}
