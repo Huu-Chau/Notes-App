@@ -1,8 +1,8 @@
 import axios from "axios"
-import {BASE_URL} from './constants'
+const API_URL = process.env.REACT_APP_BASE_URL
 
 export const axiosInstance = axios.create({
-    baseURL: BASE_URL,
+    baseURL: API_URL,
     timeout: 1000,
     headers: {
         "content-type": "application/json"
@@ -12,7 +12,7 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     (config) => {
         const accessToken = localStorage.getItem("token")
-        if(accessToken) {
+        if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config
