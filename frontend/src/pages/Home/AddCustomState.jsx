@@ -42,6 +42,7 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
 
     // delete state
     async function handleDeleteState(data) {
+        console.log('yes')
         const stateId = data._id
         try {
             const response = await axiosInstance.delete(`/api/state/${stateId}`)

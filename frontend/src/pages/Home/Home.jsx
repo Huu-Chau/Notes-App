@@ -105,7 +105,6 @@ function Home() {
 
   // edit note in NoteCard
   const onEdit = (noteDetails) => {
-    console.log('onedit')
     setOpenAddEditModal({
       isShown: true,
       type: 'edit',
@@ -132,7 +131,6 @@ function Home() {
   // pin note in NoteCard
   const onPinToggle = async (data) => {
     const noteId = data._id
-    console.log(data.isPinned)
     try {
       const response = await axiosInstance.patch(`/api/note/${noteId}`, {
         isPinned: !data.isPinned,
