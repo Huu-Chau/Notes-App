@@ -40,7 +40,6 @@ stateRouter.post('', authenToken, async (req, res) => {
                 message: 'cannot post state',
             })
         }
-        console.log('result: ', result)
 
         return res.json({
             message: 'Add state Successfully',

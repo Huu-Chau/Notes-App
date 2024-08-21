@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import React, { useEffect, useState, createContext } from 'react'
 import AddEditNotes from './AddEditNotes'
 import { axiosInstance } from '../../utils/axiosInstance'
+import { handleAxiosRequest } from '../../utils/handleAxiosRequest'
 import NoteCard from '../../components/Cards/NoteCard'
 import Navbar from '../../components/Navbar/Navbar'
 import Toast from '../../components/ToastMessage/Toast'
@@ -48,53 +49,55 @@ function Home() {
 
   // get all notes from database
   const getAllNotes = async () => {
-    try {
-      const response = await axiosInstance.get('/api/note')
+    const response = await axiosInstance.get('/api/note')
 
-      if (response.data && response.data.notes.length > 0) {
-        setAllNotes(response.data.notes)
+    handleAxiosRequest(
+      response,
+      (data) => {
+        if (data.notes.length > 0) return setAllNotes(data.notes);
+      },
+      () => {
+        console.log('An unexpected error approaches')
       }
-    } catch (error) {
-      if (error?.response?.status === 401) {
-        navigate('/login')
-      }
-      console.log('An unexpected error approaches')
-    }
+    )
   }
 
   // search notes in navbar and display to Home
   const onSearchNotes = async (query) => {
-    try {
-      const response = await axiosInstance.get(`/api/note/search`, {
-        params: { query }
-      })
-      if (response.data && response.data.matchingNotes) {
-        setIsSearch(true)
-        handleShowToast(`Found ${response.data.matchingNotes.length} notes that match your search`, 'search')
-        setAllNotes(response.data.matchingNotes)
+    const response = await axiosInstance.get(`/api/note/search`, {
+      params: { query }
+    })
+    handleAxiosRequest(
+      response,
+      (data) => {
+        if (data.matchingNotes) {
+          setIsSearch(true);
+          handleShowToast(`Found ${data.matchingNotes.length} notes that match your search`, 'search');
+          setAllNotes(data.matchingNotes);
+        }
+      },
+      () => {
+        setIsSearch(false);
+        console.log('An unexpected error approaches');
       }
-    } catch (error) {
-      setIsSearch(false)
-      console.log('An unexpected error approaches')
-    }
+    );
   }
 
   //////////     Navbar      //////////////
 
   // get user info in NavBar
   const getUserInfo = async () => {
-    try {
-      const response = await axiosInstance.get('/api/account')
-      // check if there's data, and user element in data
-      if (response.data && response.data.user) {
-        setUserInfo(response.data.user)
+    const response = await axiosInstance.get('/api/account')
+    // check if there's data, and user element in data
+    handleAxiosRequest(
+      response,
+      (data) => {
+        if (data.user) return setUserInfo(data.user);
+      },
+      () => {
+        console.log('Something wrong happened')
       }
-    } catch (error) {
-      if (error.response.status === 401) {
-        localStorage.clear()
-        navigate('/login')
-      }
-    }
+    )
   }
 
   // handle clear search
