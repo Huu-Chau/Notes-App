@@ -55,6 +55,9 @@ function Home() {
         setAllNotes(response.data.notes)
       }
     } catch (error) {
+      if (error?.response?.status === 401) {
+        navigate('/login')
+      }
       console.log('An unexpected error approaches')
     }
   }
@@ -189,16 +192,16 @@ function Home() {
   ////////////////////  DND KIT ////////////////////////////
 
   // handle function to drag and drop
-  const handleDragEnd = (event) => {
-    const { active, over } = event
-    if (over && over.id !== active.id) {
-      setAllNotes(items => {
-        const oldIndex = items.findIndex(item => item._id === active.id)
-        const newIndex = items.findIndex(item => item._id === over.id)
-        return arrayMove(items, oldIndex, newIndex)
-      })
-    }
-  }
+  // const handleDragEnd = (event) => {
+  //   const { active, over } = event
+  //   if (over && over.id !== active.id) {
+  //     setAllNotes(items => {
+  //       const oldIndex = items.findIndex(item => item._id === active.id)
+  //       const newIndex = items.findIndex(item => item._id === over.id)
+  //       return arrayMove(items, oldIndex, newIndex)
+  //     })
+  //   }
+  // }
 
   // sensor on when to click and when to drag
   // const sensors = useSensors(
@@ -265,7 +268,7 @@ function Home() {
             }
           />
         }
-        <div className="w-auto h-1/6"></div>
+        <div className="mt-24"></div>
       </div>
       {/* </SortableContext>
       </DndContext> */}
