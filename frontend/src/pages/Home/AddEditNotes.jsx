@@ -71,7 +71,12 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
             }
         }
         try {
-            const payload = compareToPutInPayload()
+            const payload = {
+                title: dataInput.title && dataInput.title !== previousDataInput.title ? dataInput.title : undefined,
+                content: dataInput.content && dataInput.content !== previousDataInput.content ? dataInput.content : undefined,
+                tags: dataInput.tags && dataInput.tags !== previousDataInput.tags ? dataInput.tags : undefined,
+                state: dataInput.state && dataInput.state !== previousDataInput.state ? dataInput.state : undefined,
+            }
             const response = await axiosInstance.patch(`/api/note/${noteId}`, payload)
 
             if (response.data && (response.data.note || response.data.stateObject)) {
@@ -86,18 +91,6 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
                 console.log(error)
             }
         }
-    }
-    // longest compare func avaiable
-    const compareToPutInPayload = () => {
-        const { title, content, tags, state } = dataInput
-        const currentField = { title, content, tags, state }
-        let updateField = {}
-        for (const key in currentField) {
-            if (currentField[key] !== previousDataInput[key]) {
-                updateField[key] = currentField[key];
-            }
-        }
-        return updateField
     }
 
     // Function to handle input changes

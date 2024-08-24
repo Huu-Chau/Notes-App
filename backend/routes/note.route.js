@@ -33,7 +33,7 @@ noteRouter.post('', authenToken, async (req, res) => {
         })
         await note.save()
 
-        return res.json({
+        return res.status(200).json({
             message: 'Create note Successfully',
             note,
             error: false,
@@ -61,7 +61,7 @@ noteRouter.get('', authenToken, async (req, res) => {
             })
         }
 
-        return res.json({
+        return res.status(200).json({
             message: 'All notes retrieve Successfully',
             notes,
             error: false,
@@ -86,11 +86,11 @@ noteRouter.patch('/:noteId', authenToken, async (req, res) => {
             error: true,
         })
     }
-
+    console.log('a')
     try {
         const [note, stateObject] = await Promise.all([
             noteModel.findOne({ _id: noteId, userId: user._id }),
-            stateModel.findOne({ message: state })
+            state ? stateModel.findOne({ message: state }) : null
         ])
 
         // unhappy cases
@@ -112,8 +112,8 @@ noteRouter.patch('/:noteId', authenToken, async (req, res) => {
 
         return res.status(200).json({
             message: 'update note successfully',
-            note: note || null,
-            stateObject: stateObject || null,
+            note,
+            stateObject,
             error: false,
         })
     } catch (error) {
@@ -144,7 +144,7 @@ noteRouter.delete('/:noteId', authenToken, async (req, res) => {
             return res.status(400).json({ error: true, message: 'No note found' })
         }
 
-        return res.json({
+        return res.status(200).json({
             message: 'Delete note Successfully',
             error: false
         })
@@ -182,7 +182,7 @@ noteRouter.get('/search', authenToken, async (req, res) => {
             return res.status(400).json({ error: true, message: 'No note found' })
         }
 
-        return res.json({
+        return res.status(200).json({
             message: 'Notes matchinng retrieved Successfully',
             matchingNotes,
             error: false,

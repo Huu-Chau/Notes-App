@@ -15,6 +15,9 @@
     /* hide horizontal scroll bar */
     overflow-x: hidden
   }
+  ::-webkit-scrollbar {
+    width: 0px;
+  }
 }
 
 @layer components {
@@ -24,6 +27,10 @@
   
   .btn-primary {
     @apply w-full text-sm bg-primary text-white p-2 rounded my-1 hover:bg-blue-600
+  }
+
+  .btn-cancel {
+    @apply w-full text-sm bg-slate-300 text-slate-800 p-2 rounded my-1 hover:bg-slate-400
   }
 
   .search-box {

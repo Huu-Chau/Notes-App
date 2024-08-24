@@ -17,7 +17,7 @@ app.use(express.json())
 const noteRouter = require('./routes/note.route')
 const stateRouter = require('./routes/state.route')
 const accountRouter = require('./routes/account.route')
-const loginRouter = require('./routes/login.route')
+const authRouter = require('./routes/auth.route')
 
 // cors
 const cors = require('cors')
@@ -31,21 +31,21 @@ app.use(
     })
 )
 
-app.get("/bing", (req, res) => {
+app.get("/ping", (req, res) => {
     res.json('bong')
 })
 
 // Account route
 app.use('/api/account', accountRouter)
 
-// Authentication route
-app.use('/api/login', loginRouter)
-
 // Notes route
 app.use('/api/note', noteRouter)
 
-// Notes route
+// State of note route
 app.use('/api/state', stateRouter)
+
+// Authentication route
+app.use('/api/auth', authRouter)
 
 app.listen(port, () => {
     console.log(`Server runs at http://localhost:${port}`)

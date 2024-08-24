@@ -12,6 +12,16 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.overflow-anywhere': {
+          'overflow-wrap': 'anywhere',
+        },
+      }
+
+      addUtilities(newUtilities, ['responsive', 'hover']);
+    },
+  ],
 }
 

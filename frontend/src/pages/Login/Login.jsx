@@ -28,7 +28,7 @@ function Login() {
 
     // axiosInstance API call
     try {
-      const response = await axiosInstance.post('/api/login', {
+      const response = await axiosInstance.post('/api/auth/login', {
         email: email,
         password: password
       })
@@ -37,8 +37,6 @@ function Login() {
       if (response.data && response.data.accessToken) {
         localStorage.setItem("token", response.data.accessToken)
         navigate('/dashboard')
-      } else {
-        setError(response.data.message)
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
@@ -78,13 +76,22 @@ function Login() {
             <button type='submit' className='btn-primary font-medium'>
               Login
             </button>
-            <p className='font-medium text-sm text-center mt-4'>
-              Not registered yet?{" "}
-              <Link to="/register" className='text-primary underline'>
-                Create an account
-              </Link>
-            </p>
+
           </form>
+
+          <p className='font-medium flex justify-center text-sm text-center mt-3'>
+            <Link to="/forget-password" className='text-primary hover:underline'>
+              Forgotten password?
+            </Link>
+          </p>
+
+          <div className="mt-5 mb-4 border-b-[1px] border-slate-300 text-sm"> </div>
+          <p className='h-1 font-medium text-sm text-center mt-4'>
+            Not registered yet?{" "}
+            <Link to="/register" className='text-primary'>
+              Create an account
+            </Link>
+          </p>
         </div>
       </div>
     </>

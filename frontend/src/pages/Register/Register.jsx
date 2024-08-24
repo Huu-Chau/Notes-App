@@ -36,38 +36,35 @@ function Register() {
     }
 
     setError('')
+    setSuccess('')
 
     // axiosInstance API call
     try {
-      const response = await axiosInstance.post('/api/account', {
+      const response = await axiosInstance.post('/api/auth/register', {
         fullName: name,
         email: email,
         password: password
       })
 
       // handle successful register response
-      if(response.data){
-        if (response.data.error === true) {
-          setError(response.data.message)
-        } else{
-          setSuccess(response.data.message)
-        }
-        console.log(response.data)
-      } 
-
-      if (response.data && response.data.accessToken) {
+      if (response?.data?.message && response?.data?.accessToken) {
         localStorage.setItem("token", response.data.accessToken)
+
+        setSuccess(response.data.message)
+
+        setTimeout(() => {
+          navigate('/login')
+        }, 1000);
       }
     } catch (error) {
       // handle register error
       console.log(error)
-      if(error.response && error.response.data && error.response.data.message){
+      if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message)
       } else {
         setError('An unexpected error ocurred. Please try again!')
       }
     }
-
   }
 
   return (
@@ -76,20 +73,20 @@ function Register() {
         <div className='w-96 border rounded bg-white px-8 py-10'>
           <form onSubmit={handleRegister}>
             <h4 className='text-2xl font-medium mb-7'>Register</h4>
-            <input 
-              type="text" 
-              placeholder='Name' 
-              className='input-box' 
-              value={name} 
-              onChange={e => {setName(e.target.value)}}
+            <input
+              type="text"
+              placeholder='Name'
+              className='input-box'
+              value={name}
+              onChange={e => { setName(e.target.value) }}
             />
-            
-            <input 
-              type="text" 
-              placeholder='Email' 
-              className='input-box' 
-              value={email} 
-              onChange={e => {setEmail(e.target.value)}}
+
+            <input
+              type="text"
+              placeholder='Email'
+              className='input-box'
+              value={email}
+              onChange={e => { setEmail(e.target.value) }}
             />
 
             <PasswordInput
@@ -97,11 +94,11 @@ function Register() {
               onChange={e => setPassword(e.target.value)}
             />
 
-            {error && 
+            {error &&
               <p className='text-red-500 text-xs pb-1'>{error}</p>
             }
 
-            {success && 
+            {success &&
               <p className='text-green-500 text-xs pb-1'>{success}</p>
             }
 

@@ -33,12 +33,12 @@ const NoteCard = ({ id, note, tags, stateMessage, stateColor, onEdit, onDelete, 
             </span>
             <div className="flex items-center justify-between">
                 <div>
-                    <h6 className="text-sm font-semibold">{title}</h6>
+                    <h6 className="text-sm font-semibold overflow-ellipsis overflow-anywhere">{title}</h6>
                     <span className="text-xs text-slate-500 font-medium">{moment(date).format('Do MMM YYYY')}</span>
                 </div>
                 <MdOutlinePushPin className={`icon-btn ${isPinned ? 'text-primary' : 'text-slate-300'}`} onClick={(e) => { onPinToggle() }} />
             </div>
-            <p className="text-xs text-slate-600 mt-2 font-semibold">{content?.slice(0, 60)}...</p>
+            <p className="text-xs text-slate-600 mt-2 font-semibold overflow-ellipsis break-words">{content?.slice(0, 60)}...</p>
 
             <div className="flex items-center justify-between mt-2">
                 <div className="text-xs text-slate-500 font-medium">

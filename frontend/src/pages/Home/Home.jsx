@@ -50,7 +50,6 @@ function Home() {
   // get all notes from database
   const getAllNotes = async () => {
     const response = await axiosInstance.get('/api/note')
-
     handleAxiosRequest(
       response,
       (data) => {
@@ -88,7 +87,6 @@ function Home() {
   // get user info in NavBar
   const getUserInfo = async () => {
     const response = await axiosInstance.get('/api/account')
-    // check if there's data, and user element in data
     handleAxiosRequest(
       response,
       (data) => {
@@ -120,33 +118,31 @@ function Home() {
 
   // delete note in NoteCard
   const onDelete = async (id) => {
-    try {
-      const response = await axiosInstance.delete(`/api/note/${id}`)
+    const response = await axiosInstance.delete(`/api/note/${id}`)
 
-      if (response.data && !response.data.error) {
-        handleShowToast('Note deleted successfully', 'delete')
-        getAllNotes()
+    handleAxiosRequest(response, (data) => {
+      handleShowToast(data.message, 'delete')
+      getAllNotes()
+    },
+      (error) => {
+        console.log(error.message)
       }
-    }
-    catch (error) {
-      console.log(error.message)
-    }
-
+    )
   }
 
   // pin note in NoteCard
   const onPinToggle = async (data) => {
     const noteId = data._id
-    try {
-      const response = await axiosInstance.patch(`/api/note/${noteId}`, {
-        isPinned: !data.isPinned,
-      })
-      if (response.data && response.data.message) {
-        getAllNotes()
-      }
-    } catch (error) {
-      console.log(error?.response?.data?.message || 'Something is wrong in the Pin toggle')
-    }
+
+    const response = await axiosInstance.patch(`/api/note/${noteId}`, {
+      isPinned: !data.isPinned,
+    })
+
+    handleAxiosRequest(response, (data) => {
+      if (data.message) return getAllNotes()
+    }, (err) => {
+      console.log(err?.response?.data?.message || 'Something is wrong in the Pin toggle')
+    })
   }
 
   // close edit note in NoteCard
@@ -156,15 +152,13 @@ function Home() {
 
   // show state to display 
   const getAllStates = async () => {
-    try {
-      const response = await axiosInstance.get(`/api/state/`)
-      if (response.data && response.data.message) {
-        setAllStates(response.data)
-      }
-    }
-    catch (error) {
-      console.log(error.response.data.message)
-    }
+    const response = await axiosInstance.get(`/api/state/`)
+
+    handleAxiosRequest(response, (data) => {
+      if (data.message) return setAllStates(data);
+    }, (err) => {
+      console.log(err.response.data.message)
+    })
   }
 
   // close edit state

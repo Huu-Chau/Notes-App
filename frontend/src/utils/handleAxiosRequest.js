@@ -15,5 +15,6 @@ export const handleAxiosRequest = async (response, onSuccess, onFailure) => {
         if (onFailure) {
             onFailure(error);
         }
+        // basically if you put a callback in the third parameter, it will pass the error params in handleAxiosRequest to the callback to perform
     }
 };

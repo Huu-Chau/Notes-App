@@ -21,8 +21,6 @@ stateRouter.post('', authenToken, async (req, res) => {
     }
 
     try {
-        console.log(`user id: ${user._id}`)
-
         // Find the highest existing type value
         const lastState = await stateModel.findOne({}).sort({ type: -1 });
         const newType = lastState ? lastState.type + 1 : 1;
@@ -41,7 +39,7 @@ stateRouter.post('', authenToken, async (req, res) => {
             })
         }
 
-        return res.json({
+        return res.status(200).json({
             message: 'Add state Successfully',
             result,
             error: false,
@@ -66,7 +64,7 @@ stateRouter.get('', authenToken, async (req, res) => {
             ]
         })
 
-        return res.json({
+        return res.status(200).json({
             message: 'State found successfully',
             error: false,
             states
@@ -96,7 +94,7 @@ stateRouter.delete('/:stateId', async (req, res) => {
                 error: true,
             })
         }
-        return res.json({
+        return res.status(200).json({
             message: 'State found successfully',
             stateMatch,
             error: false,
