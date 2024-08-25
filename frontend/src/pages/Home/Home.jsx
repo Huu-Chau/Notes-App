@@ -53,7 +53,9 @@ function Home() {
     handleAxiosRequest(
       response,
       (data) => {
-        if (data.notes.length > 0) return setAllNotes(data.notes);
+        if (data.notes.length > 0) {
+          return setAllNotes(data.notes)
+        }
       },
       () => {
         console.log('An unexpected error approaches')
@@ -86,11 +88,12 @@ function Home() {
 
   // get user info in NavBar
   const getUserInfo = async () => {
-    const response = await axiosInstance.get('/api/account')
-    handleAxiosRequest(
-      response,
+    const response = await axiosInstance.get('/api/user')
+    handleAxiosRequest(response,
       (data) => {
-        if (data.user) return setUserInfo(data.user);
+        if (data.user) {
+          return setUserInfo(data.user)
+        }
       },
       () => {
         console.log('Something wrong happened')

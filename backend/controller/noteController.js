@@ -40,6 +40,14 @@ const noteCreate = async (req, res) => {
 
 const noteSearchAll = async (req, res) => {
     const { user } = req.user
+
+    if (!user) {
+        return res.status(404).json({
+            error: true,
+            message: 'No user found',
+        })
+    }
+
     try {
         const notes = await noteModel
             .find({ userId: user._id })

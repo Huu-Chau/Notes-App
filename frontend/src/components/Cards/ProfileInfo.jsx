@@ -7,11 +7,11 @@ const ProfileInfo = ({ onLogout }) => {
     return (
         <div className='flex items-center gap-3'>
             <div className='w-12 h-12 flex items-center justify-center bg-slate-100 font-bold text-slate-950 rounded-full cursor-pointer'>
-                {getInitials(userInfo?.FullName)}
+                {getInitials(userInfo?.fullName)}
             </div>
 
             <div className='text-sm'>
-                <p className='font-bold'>{userInfo?.FullName}</p>
+                <p className='font-bold'>{userInfo?.fullName}</p>
                 <button
                     className='font-semibold text-slate-700 underline'
                     onClick={onLogout}

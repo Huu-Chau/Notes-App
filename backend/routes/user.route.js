@@ -5,9 +5,8 @@ const userRouter = express.Router()
 // mongoose
 const userModel = require('../models/user.model')
 
-// jwt & hash
-const { authenToken, hashPassword } = require('../utilities')
-const jwt = require('jsonwebtoken')
+// authen
+const { authenToken } = require('../utilities')
 
 require('dotenv').config
 
@@ -25,12 +24,13 @@ userRouter.get('', async (req, res) => {
                 { status },
             ]
         })
-        console.log("userFinder", userFinder)
+
         if (!userFinder) {
             return res.status(440).json({ error: true, message: 'Cannot found user!' })
         }
         return res.status(200).json({
             status: userFinder.status,
+            user: userFinder,
             message: 'Find user complete'
         })
     } catch (error) {
