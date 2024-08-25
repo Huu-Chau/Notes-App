@@ -7,8 +7,11 @@ const {
     userLogin,
     userRegister,
     userForgetPassword,
-    userResetPassword
+    userResetPassword,
+    userEmailVerify,
 } = require('../controller/userController')
+
+authRouter.use(express.json())
 
 // login acc
 authRouter.post('/login', userLogin)
@@ -21,5 +24,8 @@ authRouter.post('/forget-password', userForgetPassword)
 
 // reset pass
 authRouter.post('/reset-password/:token', userResetPassword)
+
+// OTP verification
+authRouter.post('/verify-email', userEmailVerify)
 
 module.exports = authRouter

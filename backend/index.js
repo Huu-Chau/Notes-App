@@ -16,8 +16,9 @@ app.use(express.json())
 // express routes
 const noteRouter = require('./routes/note.route')
 const stateRouter = require('./routes/state.route')
-const accountRouter = require('./routes/account.route')
+const userRouter = require('./routes/user.route')
 const authRouter = require('./routes/auth.route')
+const otpRouter = require('./routes/otp.route')
 
 // cors
 const cors = require('cors')
@@ -35,8 +36,8 @@ app.get("/ping", (req, res) => {
     res.json('bong')
 })
 
-// Account route
-app.use('/api/account', accountRouter)
+// User route
+app.use('/api/user', userRouter)
 
 // Notes route
 app.use('/api/note', noteRouter)
@@ -46,6 +47,9 @@ app.use('/api/state', stateRouter)
 
 // Authentication route
 app.use('/api/auth', authRouter)
+
+// OTP route
+app.use('/api/otp', otpRouter)
 
 app.listen(port, () => {
     console.log(`Server runs at http://localhost:${port}`)

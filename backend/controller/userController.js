@@ -5,16 +5,14 @@ const userModel = require('../models/user.model')
 const jwt = require('jsonwebtoken')
 
 // hash
-const { comparePassword } = require('../utilities')
+const { comparePassword, emailVerify, generateOTP } = require('../utilities')
 
 // .env
 require('dotenv').config
 
 // token authentication
-const { hashPassword } = require('../utilities')
-
-// notemailler
-const nodemailer = require('nodemailer');
+const { hashPassword, forgetPassword } = require('../utilities')
+const otpModel = require('../models/otp.model')
 
 // login
 const userLogin = async (req, res) => {
@@ -71,6 +69,7 @@ const userLogin = async (req, res) => {
 // register
 const userRegister = async (req, res) => {
     const { fullName, email, password } = req.body
+
     // check if user enters data
     if (!fullName) {
         return res.status(400).json({ error: true, message: 'Full name is required!' })
@@ -85,29 +84,45 @@ const userRegister = async (req, res) => {
     }
 
     // check if exist
-    const isUser = await userModel.findOne({ email: email })
+    let isUser = await userModel.findOne({ email: email })
 
-    if (isUser) {
+    if (isUser && isUser.status === 'verified') {
         return res.status(409).json({ error: true, message: 'User already exist!' })
     }
 
-    const hashPass = await hashPassword(password)
+    if (!isUser) {
+        const hashPass = await hashPassword(password)
 
-    // insert a new db model and saves it
-    const user = new userModel({
-        fullName,
-        email,
-        password: hashPass,
-    })
-
-    await user.save()
+        // insert a new db model and saves it
+        isUser = new userModel({
+            fullName,
+            email,
+            password: hashPass,
+            status: 'unverified',
+        })
+        await isUser.save()
+    }
 
     // also creates an token
-    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1440m' })
+    const accessToken = jwt.sign({ isUser }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1440m' })
+
+    const OTP = generateOTP()
+
+    const otpValidate = new otpModel({
+        otp: OTP,
+        userId: isUser._id,
+    })
+
+    await otpValidate.save()
+
+    emailVerify(OTP, isUser.email)
 
     return res.status(200).json({
         error: false,
-        message: 'Registration Successful'
+        token: accessToken,
+        status: isUser.status,
+        otpValidate,
+        message: 'Registration Successful',
     })
 }
 // forget pass
@@ -128,29 +143,7 @@ const userForgetPassword = async (req, res) => {
         // create the token to put in the email content url
         const token = jwt.sign({ id: userInfo._id, email: userInfo.email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24m' })
 
-        // Set up nodemailer transporter
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            secure: true,
-            auth: {
-                user: process.env.USER_NAME,
-                pass: process.env.USER_PASSWORD,
-            },
-        });
-
-        // Send the password reciever reset email
-        const reciever = {
-            from: {
-                name: 'Nguyen Huu Chau',
-                address: process.env.USER_NAME,
-            },
-            to: email,
-            subject: 'Password Reset',
-            text: `You requested a password reset. Click the link below to reset your password:
-           ${process.env.FORGET_PASSWORD_URL}/reset-password/${token}`,
-        };
-
-        transporter.sendMail(reciever)
+        forgetPassword(token)
 
         return res.status(200).json({
             message: 'Password reset request sent Successfully. Please check your email to reset your password',
@@ -195,5 +188,53 @@ const userResetPassword = async (req, res) => {
         })
     }
 }
+// verify email
+const userEmailVerify = async (req, res) => {
+    const { token } = req.query
+    const { otp } = req.body
 
-module.exports = { userLogin, userRegister, userForgetPassword, userResetPassword }
+    try {
+        const { isUser } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+        const otpValidate = await otpModel.findOne({ userId: isUser._id })
+
+        if (otpValidate.otp !== otp) {
+            return res.status(400).json({
+                message: 'Invalid OTP',
+                error: true,
+            })
+        }
+
+        const updateUserStatus = await userModel.findByIdAndUpdate({
+            _id: isUser._id
+        }, {
+            status: 'verified'
+        })
+        console.log(updateUserStatus)
+
+        if (!updateUserStatus) {
+            return res.status(401).json({
+                message: 'Unable to update status',
+                error: true,
+            })
+        }
+        await updateUserStatus.save()
+
+        return res.status(200).json({
+            message: 'User Authentication successfully',
+            error: false,
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Something went wrong',
+            error: true,
+        })
+    }
+}
+
+module.exports = {
+    userLogin,
+    userRegister,
+    userForgetPassword,
+    userResetPassword,
+    userEmailVerify,
+}

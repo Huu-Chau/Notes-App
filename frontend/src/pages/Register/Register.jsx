@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PasswordInput from '../../components/Input/PasswordInput'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { validateEmail } from '../../utils/helper'
 import { axiosInstance } from '../../utils/axiosInstance'
 
@@ -11,13 +11,17 @@ function Register() {
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
 
+  const navigate = useNavigate()
+
   const handleRegister = async (e) => {
     e.preventDefault()
 
     if (!name) {
       setError('Please enter your name.')
       return
-    } else if (name.length < 8) {
+    }
+
+    if (name.length < 8) {
       setError('The username should be at least 8 charaters long.')
       return
     }
@@ -30,7 +34,9 @@ function Register() {
     if (!password) {
       setError('Please enter your password.')
       return
-    } else if (password.length < 8) {
+    }
+
+    if (password.length < 8) {
       setError('The password should be at least 8 charaters long.')
       return
     }
@@ -42,19 +48,18 @@ function Register() {
     try {
       const response = await axiosInstance.post('/api/auth/register', {
         fullName: name,
-        email: email,
-        password: password
+        email,
+        password,
       })
-
       // handle successful register response
-      if (response?.data?.message && response?.data?.accessToken) {
-        localStorage.setItem("token", response.data.accessToken)
+      if (response?.data?.message && response?.data?.token) {
+        localStorage.setItem("token", response.data.token)
 
-        setSuccess(response.data.message)
-
-        setTimeout(() => {
-          navigate('/login')
-        }, 1000);
+        if (response?.data?.status == 'unverified') {
+          navigate(`/auth/verify-email?token=${response?.data?.token}`)
+        } else {
+          setError('User already exists')
+        }
       }
     } catch (error) {
       // handle register error

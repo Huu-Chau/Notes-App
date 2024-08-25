@@ -8,6 +8,8 @@ const stateModel = require('../models/state.model')
 // jwt authen
 const { authenToken } = require('../utilities')
 
+stateRouter.use(express.json())
+
 // add new state code
 stateRouter.post('', authenToken, async (req, res) => {
     const { state } = req.body

@@ -29,8 +29,8 @@ function Login() {
     // axiosInstance API call
     try {
       const response = await axiosInstance.post('/api/auth/login', {
-        email: email,
-        password: password
+        email,
+        password,
       })
 
       // handle successful login response
@@ -38,6 +38,7 @@ function Login() {
         localStorage.setItem("token", response.data.accessToken)
         navigate('/dashboard')
       }
+
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message)
