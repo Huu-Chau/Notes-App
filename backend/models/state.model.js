@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const stateSchema = new Schema({
-    type: { type: Number },
-    message: { type: String, required: true },
-    color: { type: String, default: 'red' },
+    order: { type: Number },
+    title: { type: String, required: true },
+    color: { type: String, default: 'transparent' },
     userId: { type: String, required: true },
 }, {
     collection: 'states'

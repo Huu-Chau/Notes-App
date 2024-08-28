@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { DndContext } from "@dnd-kit/core"
+import { DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext } from "@dnd-kit/sortable"
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { MdClose } from 'react-icons/md';
@@ -12,7 +12,7 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
     const [allState, setAllState] = useState([])
     const [stateValue, setStateValue] = useState('')
 
-    // handle note create
+    // handle state
     const handleAddState = () => {
         if (!stateValue) {
             setError('Please enter the state name before adding it')
@@ -21,8 +21,6 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
         setError('')
         addNewState()
     }
-
-    // add new State
     const addNewState = async () => {
         try {
             const response = await axiosInstance.post('/api/state', {
@@ -39,10 +37,7 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
             }
         }
     }
-
-    // delete state
     async function handleDeleteState(data) {
-        console.log('yes')
         const stateId = data._id
         try {
             const response = await axiosInstance.delete(`/api/state/${stateId}`)
@@ -60,6 +55,7 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
     // handle function to drag and drop
     const handleDragEnd = (event) => {
         const { active, over } = event
+        if (!over) return;
         if (over && over.id !== active.id) {
             setAllState(items => {
                 const oldIndex = items.findIndex(item => item._id === active.id)
@@ -68,6 +64,12 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
             })
         }
     }
+
+    const sensors = useSensors(useSensor(PointerSensor, {
+        activationConstraint: {
+            distance: 3, //300px
+        }
+    }))
 
     useEffect(() => {
         setAllState(stateData)
@@ -96,6 +98,7 @@ const AddCustomState = ({ onClose, stateData, getAllStates }) => {
                 <DndContext
                     onDragEnd={handleDragEnd}
                     modifiers={[restrictToVerticalAxis]}
+                    sensors={sensors}
                 >
                     <div className='flex flex-col gap-3'>
                         <SortableContext items={allState.map(state => state._id)}>

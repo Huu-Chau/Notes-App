@@ -22,14 +22,14 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
     // handle note create
     const handleAddNote = () => {
         const { title, content } = dataInput
-        if (!title) {
-            setError('Please enter the title')
-            return
-        }
-        if (!content) {
-            setError('Please enter the content')
-            return
-        }
+        // if (!title) {
+        //     setError('Please enter the title')
+        //     return
+        // }
+        // if (!content) {
+        //     setError('Please enter the content')
+        //     return
+        // }
         setError('')
         if (type === 'edit') {
             editNote()
@@ -42,24 +42,24 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
     const addNewNote = async () => {
         const { title, content, tags, state, } = dataInput
 
-        try {
-            const response = await axiosInstance.post('/api/note', {
-                title,
-                content,
-                tags,
-                state,
-            })
+        // try {
+        // const response = await axiosInstance.post('/api/note', {
+        //     title,
+        //     content,
+        //     tags,
+        //     state,
+        // })
 
-            if (response.data && response.data.note) {
-                handleShowToast('Note Added Successfully', 'add')
-                getAllNotes()
-                onClose()
-            }
-        } catch (error) {
-            if (error.response && error.response.data && error.response.data.message) {
-                setError(error.response.data.message)
-            }
-        }
+        // if (response.data && response.data.note) {
+        handleShowToast('Note Added Successfully', 'add')
+        // getAllNotes()
+        onClose()
+        //     }
+        // } catch (error) {
+        //     if (error.response && error.response.data && error.response.data.message) {
+        //         setError(error.response.data.message)
+        //     }
+        // }
     }
 
     // edit current note
@@ -81,7 +81,7 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
 
             if (response.data && (response.data.note || response.data.stateObject)) {
                 handleShowToast('Note Updated Successfully!', 'add')
-                getAllNotes()
+                // getAllNotes()
                 onClose()
             }
         } catch (error) {

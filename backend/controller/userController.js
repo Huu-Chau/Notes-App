@@ -47,7 +47,7 @@ const userLogin = async (req, res) => {
     }
 
     if (!passwordValidate) {
-        return res.stauts(401).json({
+        return res.status(401).json({
             message: 'Wrong password!',
             error: true,
         })
@@ -209,7 +209,6 @@ const userEmailVerify = async (req, res) => {
         }, {
             status: 'verified'
         })
-        console.log(updateUserStatus)
 
         if (!updateUserStatus) {
             return res.status(401).json({

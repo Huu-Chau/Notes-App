@@ -13,19 +13,8 @@ const NoteCard = ({ id, note, tags, stateMessage, stateColor, onEdit, onDelete, 
         return ctx.fillStyle;
     }
 
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition: transition || 'transform 250ms ease',
-    }
-
     return (
         <div
-            // ref={setNodeRef}
-            // {...attributes}
-            // {...listeners}
-            // style={style}
             className='border rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'
         >
             <span className={`absolute w-22 top-2 right-3  text-slate-800 rounded-md text-xs px-2 bg-[${colorNameToHex(stateColor)}]`}>

@@ -5,7 +5,7 @@
 @tailwind components;
 @tailwind utilities;  
 
-@layer components {
+@layer base {
   html {
     font-family: "Poppins", "sans-serif"
   }
@@ -51,6 +51,19 @@
 
   .input-label {
     @apply text-xs text-slate-400
+  }
+
+  .add-column-button {
+    @apply h-16 w-48 flex justify-center items-center cursor-pointer rounded-2xl bg-primary hover:bg-blue-600 gap-2 fixed bottom-10 right-36
+  }
+  .column-container {
+    @apply bg-white w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col border-2 border-slate-500
+  }
+  .title-container {
+    @apply bg-primary text-base h-[60px] cursor-grab rounded-md rounded-b-none p-3 font-bold flex items-center justify-between border-primary border-4
+  }
+  .task-container {
+    @apply bg-primary p-2.5 h-24 min-h-24 items-center flex text-left rounded-xl hover:ring-2 cursor-grab relative
   }
 }
 

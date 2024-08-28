@@ -1,10 +1,10 @@
 export const validateEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return regex.test(email)
+  return regex.test(email)
 }
 
 export const getInitials = (name) => {
-  if(!name) return ''
+  if (!name) return ''
 
   const words = name.split(' ')
   let initials = ''
@@ -14,4 +14,8 @@ export const getInitials = (name) => {
   }
 
   return initials.toUpperCase()
+}
+
+export const generateId = () => {
+  return Math.floor(Math.random() * 10001)
 }
