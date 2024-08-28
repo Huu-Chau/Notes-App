@@ -7,7 +7,9 @@ import ColumnState from './ColumnState';
 import TaskCard from './TaskCard';
 import { generateId } from '../../utils/helper';
 
-function KanbanBoard({ allNotes, isSearch, onEdit, onDelete, onPinToggle }) {
+function KanbanBoard(
+    // { allNotes, isSearch, onEdit, onDelete, onPinToggle }    
+) {
     const [columns, setColumns] = useState([])
     const [activeColumn, setActiveColumn] = useState(null)
     const [tasks, setTasks] = useState([])
@@ -107,6 +109,7 @@ function KanbanBoard({ allNotes, isSearch, onEdit, onDelete, onPinToggle }) {
         const isOverATask = over.data.current?.type === 'Task'
 
         if (!isActiveATask) return;
+        console.log(tasks)
 
         if (isActiveATask && isOverATask) {
             setTasks(tasks => {
@@ -115,9 +118,10 @@ function KanbanBoard({ allNotes, isSearch, onEdit, onDelete, onPinToggle }) {
 
                 tasks[activeIndex].columnId = tasks[overIndex].columnId
 
-                return arrayMove(tasks, activeIndex, activeIndex)
+                return arrayMove(tasks, activeIndex, overIndex)
             })
         }
+        console.log(tasks)
 
         // I'm dropping a task over a column
 
@@ -136,7 +140,7 @@ function KanbanBoard({ allNotes, isSearch, onEdit, onDelete, onPinToggle }) {
     }
     return (
         <div className='container min-h-screen w-full flex justify-start mt-10 px-10 overflow-x-auto overflow-y-hidden text-slate-50'>
-            <button className="add-column-button" onClick={() => { createNewColumn() }}>
+            <button className="add-column-button border-2 border-sl" onClick={() => { createNewColumn() }}>
                 <PlusIcon /> Add column
             </button>
             <DndContext
@@ -167,42 +171,17 @@ function KanbanBoard({ allNotes, isSearch, onEdit, onDelete, onPinToggle }) {
                     {activeColumn &&
                         <ColumnState
                             column={activeColumn}
-                            deleteColumn={deleteColumn}
-                            updateColumn={updateColumn}
-                            createTask={createTask}
                             tasks={tasks.filter(task => task.columnId === activeColumn.id)}
-                            deleteTask={deleteTask}
-                            updateTask={updateTask}
                         />
                     }
                     {/* need an overlay component cause we don't even need the function of it */}
                     {activeTask &&
                         <TaskCard
                             task={activeTask}
-                            deleteTask={deleteTask}
-                            updateTask={updateTask}
                         />
                     }
                 </DragOverlay>
             </DndContext>
-            {allNotes.map((note) => {
-                const stateMessage = note.state ? note.state.message : '';
-                const stateColor = note.state ? note.state.color : '';
-                return (
-                    <div className="flex flex-col gap-4" key={note._id}>
-                        <NoteCard
-                            id={note._id}
-                            note={note}
-                            tags={[note.tags]}
-                            stateMessage={stateMessage}
-                            stateColor={stateColor}
-                            onEdit={() => { onEdit(note) }}
-                            onDelete={() => { onDelete(note._id) }}
-                            onPinToggle={() => { onPinToggle(note) }}
-                        />
-                    </div>
-                )
-            })}
         </div>
     )
 }

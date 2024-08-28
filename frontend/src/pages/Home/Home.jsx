@@ -247,6 +247,8 @@ function Home() {
     })
   }
 
+
+
   useEffect(() => {
     getAllNotes()
     getAllStates()
@@ -260,13 +262,14 @@ function Home() {
       </userInfoContext.Provider>
 
       <KanbanBoard
-        allNotes={allNotes}
-        isSearch={isSearch}
-        onEdit={onEditNote}
-        onDelete={onDelete}
-        onPinToggle={onPinToggle}
+      // allNotes={allNotes}
+      // isSearch={isSearch}
+      // onEdit={onEditNote}
+      // onDelete={onDelete}
+      // onPinToggle={onPinToggle}
       />
 
+      {/* 2nd */}
       <Modal
         isOpen={openAddEditModal.isShown}
         onRequestClose={() => { closeEditNotes() }}
