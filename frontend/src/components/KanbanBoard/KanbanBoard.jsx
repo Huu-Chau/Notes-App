@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import NoteCard from '../Cards/NoteCard';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext } from "@dnd-kit/sortable"
@@ -20,6 +20,19 @@ function KanbanBoard(
             distance: 3, //300px
         }
     }))
+    const [allStates, setAllStates] = useState([])
+
+    // show state to display 
+    const getAllStates = async () => {
+        const response = await axiosInstance.get(`/api/state/`)
+
+        handleAxiosRequest(response, (data) => {
+            if (data.message) return setAllStates(data);
+        }, (err) => {
+            console.log(err.response.data.message)
+        })
+    }
+
 
     function createNewColumn() {
         const columnToAdd = {
@@ -138,6 +151,9 @@ function KanbanBoard(
             })
         }
     }
+    useEffect(() => {
+        getAllStates()
+    }, [])
     return (
         <div className='container min-h-screen w-full flex justify-start mt-10 px-10 overflow-x-auto overflow-y-hidden text-slate-50'>
             <button className="add-column-button border-2 border-sl" onClick={() => { createNewColumn() }}>

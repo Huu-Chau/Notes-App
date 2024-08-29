@@ -9,7 +9,7 @@ const {
     userForgetPassword,
     userResetPassword,
     userEmailVerify,
-} = require('../controller/userController')
+} = require('../controller/authController')
 
 authRouter.use(express.json())
 

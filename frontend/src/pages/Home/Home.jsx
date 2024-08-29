@@ -73,66 +73,12 @@ function Home() {
     })
   }
 
-  //////////      Kanban board       ///////////
-
-  // Value
-  const [columns, setColumns] = useState([])
-  const [activeColumn, setActiveColumn] = useState(null)
-  const [tasks, setTasks] = useState([])
-  const [activeTask, setActiveTask] = useState(null)
-
-  // Functions
-  function createNewColumn() {
-    const columnToAdd = {
-      id: generateId(),
-      title: `Column ${columns.length + 1}`
-    }
-    setColumns([...columns, columnToAdd])
-  }
-
-  function deleteColumn(id) {
-    const filteredColumns = columns.filter(column => column.id !== id)
-    setColumns(filteredColumns)
-
-    const filteredTasks = tasks.filter(task => task.columnId !== id)
-    setTasks(filteredTasks)
-  }
-  function updateColumn(id, title) {
-    const newColumns = columns.map(column => {
-      if (column.id !== id) return column;
-      return { ...column, title }
-    })
-    setColumns(newColumns)
-  }
-
-  function createTask(columnId) {
-    const newTask = {
-      id: generateId(),
-      columnId,
-      content: `Task ${tasks.length + 1}`,
-    }
-
-    setTasks([...tasks, newTask])
-  }
-  function deleteTask(taskId) {
-    const newTask = tasks.filter(task => task.id !== taskId)
-
-    setTasks(newTask)
-  }
-  function updateTask(taskId, content) {
-    const newTasks = tasks.map(task => {
-      if (task.id !== taskId) return task;
-      return { ...task, content }
-    })
-    setTasks(newTasks)
-  }
   // 
   const [userInfo, setUserInfo] = useState(null)
   const [isSearch, setIsSearch] = useState(false)
 
   const [allNotes, setAllNotes] = useState([])
 
-  const [allStates, setAllStates] = useState([])
 
   ////////////     Database      ////////////
 
@@ -236,22 +182,11 @@ function Home() {
   // close edit note in NoteCard
 
 
-  // show state to display 
-  const getAllStates = async () => {
-    const response = await axiosInstance.get(`/api/state/`)
-
-    handleAxiosRequest(response, (data) => {
-      if (data.message) return setAllStates(data);
-    }, (err) => {
-      console.log(err.response.data.message)
-    })
-  }
 
 
 
   useEffect(() => {
     getAllNotes()
-    getAllStates()
     getUserInfo()
   }, [])
 
@@ -287,7 +222,7 @@ function Home() {
           }}
           noteData={openAddEditModal.data}
           type={openAddEditModal.type}
-          stateValue={allStates.states}
+          // stateValue={allStates.states}
           getAllNotes={getAllNotes}
           handleShowToast={handleShowToast}
         />

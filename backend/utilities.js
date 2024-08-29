@@ -38,9 +38,12 @@ function comparePassword(password, hashedPassword) {
 function emailVerify(otp, email) {
     const transporter = nodemailer.createTransport({
         // host: 'smtp.ethereal.email',
-        service: 'gmail',
-        port: 587, // Ethereal typically uses port 587
-        secure: false, // true for port 465, false for port 587
+        // service: 'gmail',
+        // port: 587, // Ethereal typically uses port 587
+        // secure: false, // true for port 465, false for port 587
+        host: 'smtp.gmail.com',
+        port: 465, // Ethereal typically uses port 587
+        secure: true, // true for port 465, false for port 587
         auth: {
             user: process.env.USER_NAME,
             pass: process.env.USER_PASSWORD,
