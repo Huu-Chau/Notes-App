@@ -62,7 +62,13 @@ function emailVerify(otp, email) {
             <p>This code <b>expires in 1 hour</b>.</p>`,
     };
 
-    transporter.sendMail(mailOptions)
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Error sending email:', error);
+        } else {
+            console.log('Email sent:', info.response);
+        }
+    })
 }
 
 function generateOTP() {

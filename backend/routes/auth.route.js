@@ -27,6 +27,6 @@ authRouter.post('/forget-password', userForgetPassword)
 authRouter.post('/reset-password/:token', userResetPassword)
 
 // OTP verification
-authRouter.post('/verify-email', authenToken, userEmailVerify)
+authRouter.post('/verify-email', userEmailVerify)
 
 module.exports = authRouter
