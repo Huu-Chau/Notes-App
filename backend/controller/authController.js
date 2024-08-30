@@ -34,7 +34,25 @@ const userLogin = async (req, res) => {
         return res.status(404).json({ message: 'User not found!', error: true, })
     }
 
-    // const 
+    if (userInfo?.status === 'unverified') {
+        const OTP = generateOTP()
+
+        const isUserOtp = await otpModel.findOneAndUpdate({ email: email }, {
+            otp: OTP,
+        })
+
+        if (!isUserOtp) {
+            const otpValidate = new otpModel({
+                otp: OTP,
+                email,
+            })
+
+            await otpValidate.save()
+        }
+
+        emailVerify(OTP, email)
+        return res.status(409).json({ message: 'User must verify before log in', status: userInfo.status, error: false })
+    }
 
     const passwordValidate = await comparePassword(password, userInfo.password)
 

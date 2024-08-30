@@ -33,12 +33,12 @@ function Login() {
         password,
       })
 
-      // if(response?.data?.status === 'unverified'){
-      //   setError('User must verify before login')
-      //   setTimeout(() => {
-
-      //   }, 2000);
-      // }
+      if (response?.data?.message && response?.data?.status === 'unverified') {
+        setError(response.data.message)
+        setTimeout(() => {
+          navigate('/auth/verify-email')
+        }, 2000);
+      }
 
       // handle successful login response
       if (response.data && response.data.accessToken) {
