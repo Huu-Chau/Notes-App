@@ -10,6 +10,7 @@ const {
     userResetPassword,
     userEmailVerify,
 } = require('../controller/authController')
+const { authenToken } = require('../utilities')
 
 authRouter.use(express.json())
 
@@ -26,6 +27,6 @@ authRouter.post('/forget-password', userForgetPassword)
 authRouter.post('/reset-password/:token', userResetPassword)
 
 // OTP verification
-authRouter.post('/verify-email', userEmailVerify)
+authRouter.post('/verify-email', authenToken, userEmailVerify)
 
 module.exports = authRouter

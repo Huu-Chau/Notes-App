@@ -85,14 +85,12 @@ const userRegister = async (req, res) => {
 
     // check if exist
     let isUser = await userModel.findOne({ email: email })
-
     if (isUser && isUser.status === 'verified') {
-        return res.status(409).json({ error: true, message: 'User already exist!' })
+        // not know the status is
+        return res.status(409).json({ error: true, status: isUser.status, message: 'User already verified!' })
     }
-
     if (!isUser) {
         const hashPass = await hashPassword(password)
-
         // insert a new db model and saves it
         isUser = new userModel({
             fullName,
@@ -103,26 +101,30 @@ const userRegister = async (req, res) => {
         await isUser.save()
     }
 
-    // also creates an token
-    const accessToken = jwt.sign({ isUser }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1440m' })
-
     const OTP = generateOTP()
 
-    const otpValidate = new otpModel({
-        otp: OTP,
-        userId: isUser._id,
-    })
+    let isUserOtp = await otpModel.findOne({ email: email })
 
-    await otpValidate.save()
+    if (isUserOtp) {
+        isUserOtp.updateOne({
+            otp: OTP,
+        })
+    } else {
+        const otpValidate = new otpModel({
+            otp: OTP,
+            email,
+        })
+
+        await otpValidate.save()
+    }
 
     emailVerify(OTP, isUser.email)
 
     return res.status(200).json({
         error: false,
-        token: accessToken,
+        message: 'Registration Successful, now sending OTP verification',
+        email,
         status: isUser.status,
-        otpValidate,
-        message: 'Registration Successful',
     })
 }
 // forget pass
@@ -190,13 +192,12 @@ const userResetPassword = async (req, res) => {
 }
 // verify email
 const userEmailVerify = async (req, res) => {
-    const { token } = req.query
-    const { otp } = req.body
-
+    const { email, otp } = req.body
+    const { isUser } = req.user
+    console.log('otp', otp)
     try {
-        const { isUser } = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-        const otpValidate = await otpModel.findOne({ userId: isUser._id })
-
+        const otpValidate = await otpModel.findOne({ email: email })
+        console.log('otp valid', otpValidate.otp)
         if (otpValidate.otp !== otp) {
             return res.status(400).json({
                 message: 'Invalid OTP',

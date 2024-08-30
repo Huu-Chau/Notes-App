@@ -25,17 +25,14 @@ function Register() {
       setError('The username should be at least 8 charaters long.')
       return
     }
-
     if (!validateEmail(email)) {
       setError('Please enter a valid email address.')
       return
     }
-
     if (!password) {
       setError('Please enter your password.')
       return
     }
-
     if (password.length < 8) {
       setError('The password should be at least 8 charaters long.')
       return
@@ -52,11 +49,11 @@ function Register() {
         password,
       })
       // handle successful register response
-      if (response?.data?.message && response?.data?.token) {
-        localStorage.setItem("token", response.data.token)
+      if (response?.data?.message && response?.data?.email) {
+        localStorage.setItem("email", response.data.email)
 
         if (response?.data?.status == 'unverified') {
-          navigate(`/auth/verify-email?token=${response?.data?.token}`)
+          navigate(`/auth/verify-email`)
         } else {
           setError('User already exists')
         }

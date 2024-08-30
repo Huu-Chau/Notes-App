@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { axiosInstance } from '../../utils/axiosInstance'
 
 function VerifyEmail() {
@@ -8,16 +8,18 @@ function VerifyEmail() {
     const [success, setSuccess] = useState(null)
 
     const navigate = useNavigate()
-    const { search } = useLocation()
 
     const handleVerify = async () => {
+        const email = localStorage.getItem('email')
         try {
-            const response = await axiosInstance.post(`/api/auth/verify-email${search}`, {
+            const response = await axiosInstance.post(`/api/auth/verify-email`, {
+                email,
                 otp: validate,
             })
-            if (response?.data?.message) {
+            if (response?.data?.message && response?.data?.token) {
                 setSuccess(response.data.message)
-                setTimeout(() => {
+
+                return setTimeout(() => {
                     navigate('/login')
                 }, 2000);
             }

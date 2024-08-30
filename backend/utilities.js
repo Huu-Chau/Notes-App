@@ -9,11 +9,13 @@ function authenToken(req, res, next) {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) return res.sendStatus(401).json({ message: 'No token provided, redirect to login' });
+
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) {
             return res.sendStatus(401).json({ message: 'No token provided, redirect to login' });
         }
         req.user = user
+        console.log(user)
         next()
     })
 }
@@ -30,7 +32,6 @@ function hashPassword(password) {
     }
     return hashedPassword
 }
-
 function comparePassword(password, hashedPassword) {
     return bcrypt.compare(password, hashedPassword);
 }

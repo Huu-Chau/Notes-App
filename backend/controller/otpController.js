@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 // .env
 require('dotenv').config
 
+// error3
 const otpCreate = async (req, res) => {
     const { userId, otp } = req.body
     // check if user enters data
@@ -38,18 +39,16 @@ const otpCreate = async (req, res) => {
         })
     }
 }
-// otp send
+// otp  error
 const otpSend = async (req, res) => {
-    const { token } = req.query
 
     try {
-        const user = jwt.sign(token, process.env.ACCESS_TOKEN_SECRET)
 
         const OTP = generateOTP()
 
         const otpValidate = new otpModel({
             otp: OTP,
-            userId: user._id,
+            email: email,
         })
 
         await otpValidate.save()
@@ -57,7 +56,7 @@ const otpSend = async (req, res) => {
         emailVerify(OTP, user.email)
 
         return res.status(200).json({
-            message: 'OTP reqest sent successfully',
+            message: 'OTP request sent successfully',
             error: false,
         })
     } catch (error) {
