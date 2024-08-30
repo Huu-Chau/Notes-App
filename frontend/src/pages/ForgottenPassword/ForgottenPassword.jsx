@@ -10,15 +10,14 @@ function ForgottenPassword() {
 
     const navigate = useNavigate()
 
-    const handleForgetPassword = async (e) => {
-        e.preventDefault()
+    const handleForgetPassword = async () => {
+        setError('')
+        setSuccess('')
 
         if (!validateEmail(email)) {
             setError('Please enter a valid email address.')
             return
         }
-        setError('')
-        setSuccess('')
 
         // axiosInstance API call
         try {
@@ -30,7 +29,7 @@ function ForgottenPassword() {
                 setSuccess(response.data.message)
             }
         } catch (error) {
-            console.log(error)
+            console.log(error?.message)
             if (error.response && error.response.data && error.response.data.message) {
                 setError(error.response.data.message)
             } else {
@@ -57,7 +56,7 @@ function ForgottenPassword() {
                         value={email}
                         onChange={e => {
                             if (error) {
-                                setError(null)
+                                setError('Something went wrong when inserting email')
                             }
                             setEmail(e.target.value)
                         }}

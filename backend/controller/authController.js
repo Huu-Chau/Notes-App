@@ -146,6 +146,7 @@ const userRegister = async (req, res) => {
 // forget pass
 const userForgetPassword = async (req, res) => {
     const { email } = req.body
+    console.log(email)
     // check if user enters data
     if (!email) {
         return res.status(400).json({ message: 'Email is required!', error: true, })
@@ -161,14 +162,14 @@ const userForgetPassword = async (req, res) => {
         // create the token to put in the email content url
         const token = jwt.sign({ id: userInfo._id, email: userInfo.email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24m' })
 
-        forgetPassword(token)
+        forgetPassword(token, email)
 
         return res.status(200).json({
             message: 'Password reset request sent Successfully. Please check your email to reset your password',
             error: false,
         })
     } catch (error) {
-        console.log('error')
+        console.log(error)
         return res.status(500).json({
             message: 'Something went wrong',
             error: true,

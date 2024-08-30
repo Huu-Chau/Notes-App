@@ -13,7 +13,7 @@ const routes = createBrowserRouter(
       <Route index element={<Login />} />
       <Route path='/dashboard' element={<Home />} />
       <Route path='/login' element={<Login />} />
-      <Route path='/auth/forget-password' element={<ForgottenPassword />} />
+      <Route path='/forget-password' element={<ForgottenPassword />} />
       <Route path='/auth/reset-password/:token' element={<ResetPassword />} />
       <Route path='/register' element={<Register />} />
       <Route path='/auth/verify-email' element={<VerifyEmail />} />

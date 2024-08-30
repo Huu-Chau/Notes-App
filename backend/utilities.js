@@ -78,11 +78,12 @@ function generateOTP() {
     })
 }
 
-function forgetPassword(token) {
+function forgetPassword(token, email) {
     // Set up nodemailer transporter
     const transporter = nodemailer.createTransport({
-        service: 'smtp.ethereal.email',
-        secure: true,
+        host: 'smtp.gmail.com',
+        port: 465, // Ethereal typically uses port 587
+        secure: true, // true for port 465, false for port 587
         auth: {
             user: process.env.USER_NAME,
             pass: process.env.USER_PASSWORD,
@@ -98,9 +99,8 @@ function forgetPassword(token) {
         to: email,
         subject: 'Password Reset',
         text: `You requested a password reset. Click the link below to reset your password:
-       ${process.env.FORGET_PASSWORD_URL}/reset-password/${token}`,
+       ${process.env.URL_FORGET_PASSWORD}/reset-password/${token}`,
     };
-
     transporter.sendMail(mailOptions)
 }
 
