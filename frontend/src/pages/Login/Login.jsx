@@ -33,6 +33,13 @@ function Login() {
         password,
       })
 
+      // if(response?.data?.status === 'unverified'){
+      //   setError('User must verify before login')
+      //   setTimeout(() => {
+
+      //   }, 2000);
+      // }
+
       // handle successful login response
       if (response.data && response.data.accessToken) {
         localStorage.setItem("token", response.data.accessToken)

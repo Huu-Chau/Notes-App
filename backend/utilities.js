@@ -15,7 +15,6 @@ function authenToken(req, res, next) {
             return res.sendStatus(401).json({ message: 'No token provided, redirect to login' });
         }
         req.user = user
-        console.log(user)
         next()
     })
 }

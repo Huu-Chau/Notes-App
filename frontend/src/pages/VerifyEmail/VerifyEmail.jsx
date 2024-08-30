@@ -11,6 +11,8 @@ function VerifyEmail() {
 
     const handleVerify = async () => {
         const email = localStorage.getItem('email')
+        setError('')
+        setSuccess('')
         try {
             const response = await axiosInstance.post(`/api/auth/verify-email`, {
                 email,

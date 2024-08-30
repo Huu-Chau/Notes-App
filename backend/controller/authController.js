@@ -103,13 +103,11 @@ const userRegister = async (req, res) => {
 
     const OTP = generateOTP()
 
-    let isUserOtp = await otpModel.findOne({ email: email })
+    const isUserOtp = await otpModel.findOneAndUpdate({ email: email }, {
+        otp: OTP,
+    })
 
-    if (isUserOtp) {
-        isUserOtp.updateOne({
-            otp: OTP,
-        })
-    } else {
+    if (!isUserOtp) {
         const otpValidate = new otpModel({
             otp: OTP,
             email,
@@ -193,7 +191,6 @@ const userResetPassword = async (req, res) => {
 // verify email
 const userEmailVerify = async (req, res) => {
     const { email, otp } = req.body
-    console.log('otp', otp)
     try {
         const otpValidate = await otpModel.findOne({ email: email })
         if (otpValidate.otp !== otp) {
@@ -203,12 +200,12 @@ const userEmailVerify = async (req, res) => {
             })
         }
 
-        const updateUserStatus = await userModel.findByIdAndUpdate({
-            _id: isUser._id
+        const updateUserStatus = await userModel.findOneAndUpdate({
+            email: email
         }, {
-            status: 'verified'
-        })
-
+            otp: 'verified'
+        }
+        )
         if (!updateUserStatus) {
             return res.status(401).json({
                 message: 'Unable to update status',
