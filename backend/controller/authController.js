@@ -193,11 +193,9 @@ const userResetPassword = async (req, res) => {
 // verify email
 const userEmailVerify = async (req, res) => {
     const { email, otp } = req.body
-    const { isUser } = req.user
     console.log('otp', otp)
     try {
         const otpValidate = await otpModel.findOne({ email: email })
-        console.log('otp valid', otpValidate.otp)
         if (otpValidate.otp !== otp) {
             return res.status(400).json({
                 message: 'Invalid OTP',

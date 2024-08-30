@@ -16,7 +16,7 @@ function VerifyEmail() {
                 email,
                 otp: validate,
             })
-            if (response?.data?.message && response?.data?.token) {
+            if (response?.data?.message) {
                 setSuccess(response.data.message)
 
                 return setTimeout(() => {
