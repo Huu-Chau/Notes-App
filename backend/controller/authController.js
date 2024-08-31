@@ -53,7 +53,7 @@ const userLogin = async (req, res) => {
         }
 
         emailVerify(OTP, email)
-        return res.status(409).json({
+        return res.status(200).json({
             message: 'User must verify before log in',
             status: userInfo.status,
             error: false

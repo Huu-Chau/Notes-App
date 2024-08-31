@@ -35,6 +35,7 @@ function Login() {
 
       if (response?.data?.message && response?.data?.status === 'unverified') {
         setError(response.data.message)
+        console.log('aaaa')
         setTimeout(() => {
           navigate('/auth/verify-email')
         }, 2000);

@@ -20,8 +20,10 @@ function VerifyEmail() {
                 type,
                 otp: validate,
             })
+            console.log('a')
             if (response?.data?.message && response?.data?.type == 'verify-email') {
                 setSuccess(response.data.message)
+                console.log('a')
 
                 return setTimeout(() => {
                     navigate('/login')
