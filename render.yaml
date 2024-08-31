@@ -1,0 +1,17 @@
+services:
+  - name: my-web-service
+    type: web # Can be web, worker, cron, etc.
+    env: node # Environment, such as node, python, ruby, etc.
+    plan: standard # Plan type (e.g., free, standard)
+    buildCommand: npm install && npm run build # Command to build the app
+    startCommand: npm start # Command to start the app
+    envVars: # Environment variables for the service
+      - key: DATABASE_URL
+        fromDatabase:
+          name: my-database
+          property: connectionString
+    routes: # Routing rules for the service
+      - type: rewrite
+        source: '/*'
+        destination: '/index.html'
+    autoDeploy: true # Auto-deploy on git push
