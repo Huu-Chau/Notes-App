@@ -56,7 +56,7 @@ function ForgottenPassword() {
                 <h4 className='text-2xl font-medium mb-7'>Find your account</h4>
                 <div className="mt-3 mb-2 border-b-[1px] border-slate-300 text-sm"></div>
                 <p className='mb-3 font-normal'>Please enter your email address or mobile number to search for your account.</p>
-                <div>
+                <form onSubmit={handleForgetPassword}>
                     <input
                         type="text"
                         placeholder='Email address'
@@ -76,7 +76,7 @@ function ForgottenPassword() {
                     {success &&
                         <p className='text-green-500 text-xs pb-1'>{success}</p>
                     }
-                </div>
+                </form>
                 <div className="mt-3 mb-4 border-b-[1px] border-slate-300 text-sm"></div>
                 <div className="flex justify-end items-center gap-2">
                     <button className='btn-cancel font-medium w-24' onClick={handleCancel}>

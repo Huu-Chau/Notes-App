@@ -60,7 +60,7 @@ function ResetPassword() {
                 <h4 className='text-2xl font-medium mb-7'>Reset your Password</h4>
                 <div className="mt-3 mb-2 border-b-[1px] border-slate-300 text-sm"></div>
                 <p className='mb-3 font-normal text-sm'>Please enter your password</p>
-                <div>
+                <form onSubmit={handleResetPassword}>
                     <PasswordInput
                         value={password}
                         onChange={e => setPassword(e.target.value)}
@@ -76,7 +76,7 @@ function ResetPassword() {
                     {success &&
                         <p className='text-green-500 text-xs pb-1'>{success}</p>
                     }
-                </div>
+                </form>
                 <div className="flex justify-end items-center gap-2">
                     <button className='btn-cancel font-medium w-24' onClick={handleCancel}>
                         Cancel

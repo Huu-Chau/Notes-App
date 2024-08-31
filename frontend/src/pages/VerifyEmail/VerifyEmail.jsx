@@ -12,6 +12,7 @@ function VerifyEmail() {
     const handleVerify = async () => {
         const email = localStorage.getItem('email')
         const type = localStorage.getItem('type')
+        console.log(type)
         setError('')
         setSuccess('')
         try {
@@ -20,10 +21,8 @@ function VerifyEmail() {
                 type,
                 otp: validate,
             })
-            console.log('a')
-            if (response?.data?.message && response?.data?.type == 'verify-email') {
+            if (response?.data?.message && response?.data?.type == 'email-verify') {
                 setSuccess(response.data.message)
-                console.log('a')
 
                 return setTimeout(() => {
                     navigate('/login')
@@ -37,7 +36,7 @@ function VerifyEmail() {
                 }, 2000);
             }
         } catch (error) {
-            console.log(error)
+            console.log(error.message)
             setError(error?.response?.data?.message)
         }
     }
@@ -50,7 +49,7 @@ function VerifyEmail() {
         <div className='flex items-center justify-center mt-28 '>
             <div className='w-1/4 border rounded bg-white px-8 pt-10 pb-4'>
                 <h4 className='text-2xl font-medium mb-7'>OTP verification</h4>
-                <div>
+                <form onSubmit={handleVerify}>
                     <input type="text" value={validate} onChange={e => setValidate(e.target.value)} placeholder='Enter your OTP here' className='input-box' />
 
                     {error &&
@@ -59,7 +58,7 @@ function VerifyEmail() {
                     {success &&
                         <p className='text-green-500 text-xs pb-1'>{success}</p>
                     }
-                </div>
+                </form>
                 <div className="flex justify-end items-center gap-2">
                     <button className='btn-cancel font-medium w-24' onClick={handleCancel}>
                         Cancel

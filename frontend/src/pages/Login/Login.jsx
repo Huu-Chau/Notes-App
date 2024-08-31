@@ -35,7 +35,8 @@ function Login() {
 
       if (response?.data?.message && response?.data?.status === 'unverified') {
         setError(response.data.message)
-        console.log('aaaa')
+        localStorage.setItem("type", "email-verify")
+        localStorage.setItem("email", email)
         setTimeout(() => {
           navigate('/auth/verify-email')
         }, 2000);

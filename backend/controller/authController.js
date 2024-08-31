@@ -255,13 +255,14 @@ const userEmailVerify = async (req, res) => {
         }
 
         await updateUserStatus.updateOne({
-            otp: 'verified'
+            status: 'verified'
         })
         await updateUserStatus.save()
 
         return res.status(200).json({
             message: 'User Authentication successfully',
             type,
+            status: updateUserStatus.status,
             error: false,
         })
 
