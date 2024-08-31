@@ -24,7 +24,7 @@ authRouter.post('/register', userRegister)
 authRouter.post('/forget-password', userForgetPassword)
 
 // reset pass
-authRouter.post('/reset-password/:token', userResetPassword)
+authRouter.post('/reset-password', userResetPassword)
 
 // OTP verification
 authRouter.post('/verify-email', userEmailVerify)

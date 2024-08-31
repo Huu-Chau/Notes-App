@@ -11,18 +11,27 @@ function VerifyEmail() {
 
     const handleVerify = async () => {
         const email = localStorage.getItem('email')
+        const type = localStorage.getItem('type')
         setError('')
         setSuccess('')
         try {
             const response = await axiosInstance.post(`/api/auth/verify-email`, {
                 email,
+                type,
                 otp: validate,
             })
-            if (response?.data?.message) {
+            if (response?.data?.message && response?.data?.type == 'verify-email') {
                 setSuccess(response.data.message)
 
                 return setTimeout(() => {
                     navigate('/login')
+                }, 2000);
+            }
+            if (response?.data?.message && response?.data?.type == 'reset-password') {
+                setSuccess(response.data.message)
+
+                return setTimeout(() => {
+                    navigate('/auth/reset-password')
                 }, 2000);
             }
         } catch (error) {

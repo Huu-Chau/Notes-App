@@ -14,7 +14,7 @@ const routes = createBrowserRouter(
       <Route path='/dashboard' element={<Home />} />
       <Route path='/login' element={<Login />} />
       <Route path='/forget-password' element={<ForgottenPassword />} />
-      <Route path='/auth/reset-password/:token' element={<ResetPassword />} />
+      <Route path='/auth/reset-password' element={<ResetPassword />} />
       <Route path='/register' element={<Register />} />
       <Route path='/auth/verify-email' element={<VerifyEmail />} />
     </Route>

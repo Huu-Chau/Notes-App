@@ -21,12 +21,20 @@ function ForgottenPassword() {
 
         // axiosInstance API call
         try {
+            const type = 'reset-password'
             const response = await axiosInstance.post('/api/auth/forget-password', {
                 email,
+                type,
             })
             // handle successful login response
             if (response.data && response.data.message) {
+                localStorage.setItem("email", email)
+                localStorage.setItem("type", type)
+
                 setSuccess(response.data.message)
+                setTimeout(() => {
+                    navigate('/auth/verify-email')
+                }, 3000);
             }
         } catch (error) {
             console.log(error?.message)
@@ -75,7 +83,7 @@ function ForgottenPassword() {
                         Cancel
                     </button>
                     <button className='btn-primary font-medium w-24' onClick={handleForgetPassword}>
-                        Search
+                        Confirm
                     </button>
                 </div>
             </div>

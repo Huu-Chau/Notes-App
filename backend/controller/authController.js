@@ -39,19 +39,25 @@ const userLogin = async (req, res) => {
 
         const isUserOtp = await otpModel.findOneAndUpdate({ email: email }, {
             otp: OTP,
+            type: 'email-verify',
         })
 
         if (!isUserOtp) {
             const otpValidate = new otpModel({
                 otp: OTP,
                 email,
+                type: 'email-verify',
             })
 
             await otpValidate.save()
         }
 
         emailVerify(OTP, email)
-        return res.status(409).json({ message: 'User must verify before log in', status: userInfo.status, error: false })
+        return res.status(409).json({
+            message: 'User must verify before log in',
+            status: userInfo.status,
+            error: false
+        })
     }
 
     const passwordValidate = await comparePassword(password, userInfo.password)
@@ -86,7 +92,7 @@ const userLogin = async (req, res) => {
 }
 // register
 const userRegister = async (req, res) => {
-    const { fullName, email, password } = req.body
+    const { fullName, email, password, type } = req.body
 
     // check if user enters data
     if (!fullName) {
@@ -123,12 +129,14 @@ const userRegister = async (req, res) => {
 
     const isUserOtp = await otpModel.findOneAndUpdate({ email: email }, {
         otp: OTP,
+        type,
     })
 
     if (!isUserOtp) {
         const otpValidate = new otpModel({
             otp: OTP,
             email,
+            type,
         })
 
         await otpValidate.save()
@@ -146,7 +154,6 @@ const userRegister = async (req, res) => {
 // forget pass
 const userForgetPassword = async (req, res) => {
     const { email } = req.body
-    console.log(email)
     // check if user enters data
     if (!email) {
         return res.status(400).json({ message: 'Email is required!', error: true, })
@@ -159,10 +166,23 @@ const userForgetPassword = async (req, res) => {
     }
 
     try {
-        // create the token to put in the email content url
-        const token = jwt.sign({ id: userInfo._id, email: userInfo.email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24m' })
+        const OTP = generateOTP()
 
-        forgetPassword(token, email)
+        const isUserOtp = await otpModel.findOneAndUpdate({ email: email, type: 'reset-password' }, {
+            otp: OTP,
+        })
+
+        if (!isUserOtp) {
+            const otpValidate = new otpModel({
+                otp: OTP,
+                email,
+                type: 'reset-password',
+            })
+
+            await otpValidate.save()
+        }
+
+        forgetPassword(OTP, email)
 
         return res.status(200).json({
             message: 'Password reset request sent Successfully. Please check your email to reset your password',
@@ -178,17 +198,15 @@ const userForgetPassword = async (req, res) => {
 }
 // reset pass
 const userResetPassword = async (req, res) => {
-    const { token } = req.params
-    const { password } = req.body
+    const { email, password } = req.body
 
     // check if user enters data
     if (!password) {
         return res.status(400).json({ message: 'Password is required!', error: true, })
     }
     try {
-        const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
 
-        const user = await userModel.findOne({ email: decode.email })
+        const user = await userModel.findOne({ email: email })
 
         const newHashPassword = await hashPassword(password)
 
@@ -209,9 +227,9 @@ const userResetPassword = async (req, res) => {
 }
 // verify email
 const userEmailVerify = async (req, res) => {
-    const { email, otp } = req.body
+    const { email, otp, type } = req.body
     try {
-        const otpValidate = await otpModel.findOne({ email: email })
+        const otpValidate = await otpModel.findOne({ email: email, type: type })
         if (otpValidate.otp !== otp) {
             return res.status(400).json({
                 message: 'Invalid OTP',
@@ -219,24 +237,34 @@ const userEmailVerify = async (req, res) => {
             })
         }
 
-        const updateUserStatus = await userModel.findOneAndUpdate({
+        const updateUserStatus = await userModel.findOne({
             email: email
-        }, {
-            otp: 'verified'
-        }
-        )
+        })
         if (!updateUserStatus) {
             return res.status(401).json({
                 message: 'Unable to update status',
                 error: true,
             })
         }
+        if (type === 'reset-password') {
+            return res.status(200).json({
+                message: 'User Authentication successfully, please wait and reset your password.',
+                type,
+                error: false,
+            })
+        }
+
+        await updateUserStatus.updateOne({
+            otp: 'verified'
+        })
         await updateUserStatus.save()
 
         return res.status(200).json({
             message: 'User Authentication successfully',
+            type,
             error: false,
         })
+
     } catch (error) {
         return res.status(500).json({
             message: 'Something went wrong',

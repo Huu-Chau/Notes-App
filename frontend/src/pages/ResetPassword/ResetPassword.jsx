@@ -13,9 +13,10 @@ function ResetPassword() {
     const navigate = useNavigate()
 
     const handleResetPassword = async (e) => {
-        e.preventDefault()
         setError('')
         setSuccess('')
+
+        const email = localStorage.getItem('email')
 
         if (!password || !confirmPassword) {
             return setError('Please enter your password')
@@ -27,7 +28,8 @@ function ResetPassword() {
 
         // axiosInstance API call
         try {
-            const response = await axiosInstance.post(`/api/auth/reset-password/${token}`, {
+            const response = await axiosInstance.post(`/api/auth/reset-password`, {
+                email,
                 password,
             })
 

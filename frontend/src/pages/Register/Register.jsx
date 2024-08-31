@@ -43,14 +43,17 @@ function Register() {
 
     // axiosInstance API call
     try {
+      const type = 'email-verify'
       const response = await axiosInstance.post('/api/auth/register', {
         fullName: name,
         email,
         password,
+        type,
       })
       // handle successful register response
       if (response?.data?.message && response?.data?.email) {
         localStorage.setItem("email", response.data.email)
+        localStorage.setItem("type", type)
 
         if (response?.data?.status == 'unverified') {
           navigate(`/auth/verify-email`)
@@ -61,7 +64,7 @@ function Register() {
     } catch (error) {
       // handle register error
       console.log(error)
-      if (error.response && error.response.data && error.response.data.message) {
+      if (error?.response?.data?.message) {
         setError(error.response.data.message)
       } else {
         setError('An unexpected error ocurred. Please try again!')

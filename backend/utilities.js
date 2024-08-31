@@ -78,7 +78,7 @@ function generateOTP() {
     })
 }
 
-function forgetPassword(token, email) {
+function forgetPassword(otp, email) {
     // Set up nodemailer transporter
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -98,8 +98,10 @@ function forgetPassword(token, email) {
         },
         to: email,
         subject: 'Password Reset',
-        text: `You requested a password reset. Click the link below to reset your password:
-       ${process.env.URL_FORGET_PASSWORD}/reset-password/${token}`,
+        //     text: `You requested a password reset. Click the link below to reset your password:
+        //    ${process.env.URL_FORGET_PASSWORD}/reset-password/${token}`,
+        html: `<p>Enter <b>${otp}</b> in the app to verify your account and proceed to the reset password protocol.</p>
+            <p>This code <b>expires in 1 hour</b>.</p>`,
     };
     transporter.sendMail(mailOptions)
 }
