@@ -2,22 +2,13 @@
 const stateModel = require('../models/state.model')
 
 const addNewState = async (req, res) => {
-    const { order, title, color } = req.body
+    const { order, title } = req.body
     const { user } = req.user
 
-    if (!title) {
-        return res.status(400).json({
-            message: 'State is required!',
-            error: true,
-        })
-    }
-
     try {
-
         const result = await stateModel.create({
-            order: order || 0,
+            order,
             title,
-            color,
             userId: user._id,
         });
 
@@ -69,7 +60,7 @@ const deleteState = async (req, res) => {
     const { stateId } = req.params
     if (!stateId || stateId == '') {
         return res.status(400).json({
-            message: 'Please enter valid state',
+            message: 'Invalid state',
             error: true,
         })
     }
@@ -94,4 +85,30 @@ const deleteState = async (req, res) => {
     }
 }
 
-module.exports = { addNewState, getStates, deleteState }
+const updateState = async (req, res) => {
+    const { id, title } = req.body
+
+    try {
+        const stateMatch = await stateModel.findByIdAndUpdate({ _id: id }, {
+            title,
+        })
+        if (!stateMatch) {
+            return res.status(404).json({
+                message: 'No state found',
+                error: true,
+            })
+        }
+        return res.status(200).json({
+            message: 'State found successfully',
+            stateMatch,
+            error: false,
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Internal Server Error',
+            error: true,
+        })
+    }
+}
+
+module.exports = { addNewState, getStates, deleteState, updateState }

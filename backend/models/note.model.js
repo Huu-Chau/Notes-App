@@ -7,8 +7,7 @@ const noteSchema = new Schema({
     tags: { type: [String], default: [] },
     isPinned: { type: Boolean, default: false },
     userId: { type: String, required: true },
-    // priority: { type: Number, required: true, default: 1 },
-    state: { type: Schema.Types.ObjectId, ref: 'state' },
+    columnId: { type: String, required: true },
     createdOn: { type: Date, default: new Date().getTime() }
 }, {
     collection: 'notes'

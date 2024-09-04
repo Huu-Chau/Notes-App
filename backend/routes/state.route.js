@@ -5,7 +5,7 @@ const stateRouter = express.Router()
 
 // jwt authen
 const { authenToken } = require('../utilities')
-const { deleteState, getStates, addNewState } = require('../controller/stateController')
+const { deleteState, getStates, addNewState, updateState } = require('../controller/stateController')
 
 stateRouter.use(express.json())
 
@@ -15,7 +15,10 @@ stateRouter.post('', authenToken, addNewState)
 // get all state codes
 stateRouter.get('', authenToken, getStates)
 
-// delete one state code
+// update state code
+stateRouter.put('', authenToken, updateState)
+
+// delete state code
 stateRouter.delete('/:stateId', deleteState)
 
 

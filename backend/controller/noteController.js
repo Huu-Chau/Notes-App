@@ -3,7 +3,7 @@ const noteModel = require('../models/note.model')
 const stateModel = require('../models/state.model')
 
 const noteCreate = async (req, res) => {
-    const { title, content, tags, state } = req.body
+    const { title, content, tags, columnId } = req.body
     const { user } = req.user
     // check if user enters data
     if (!title) {
@@ -13,24 +13,23 @@ const noteCreate = async (req, res) => {
     if (!content) {
         return res.status(400).json({ error: true, message: 'Content is required!' })
     }
-    const stateName = await stateModel.findOne({ message: state })
     try {
         const note = new noteModel({
             title,
             content,
             tags: tags || [],
+            isPinned: false,
             userId: user._id,
-            state: stateName._id,
-            isPinned: false
+            columnId,
         })
         await note.save()
-
         return res.status(200).json({
             message: 'Create note Successfully',
             note,
             error: false,
         })
     } catch (error) {
+        console.error(error)
         return res.status(500).json({
             error: true,
             message: 'Internal Server Error',
@@ -40,7 +39,6 @@ const noteCreate = async (req, res) => {
 
 const noteSearchAll = async (req, res) => {
     const { user } = req.user
-
     if (!user) {
         return res.status(404).json({
             error: true,
@@ -52,7 +50,6 @@ const noteSearchAll = async (req, res) => {
         const notes = await noteModel
             .find({ userId: user._id })
             .sort({ isPinned: -1 })
-            .populate('state')
         if (!notes) {
             return res.status(400).json({
                 error: true,

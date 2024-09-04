@@ -3,7 +3,7 @@ import TagInput from '../../components/Input/TagInput';
 import { MdClose } from 'react-icons/md';
 import { axiosInstance } from '../../utils/axiosInstance';
 // parent: Home
-const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handleShowToast }) => {
+const AddEditNotes = ({ onClose, noteData, type, getAllNotes, handleShowToast, columnId, }) => {
     const [error, setError] = useState(null)
     const previousDataInput = {
         title: noteData?.title ?? '',
@@ -22,14 +22,14 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
     // handle note create
     const handleAddNote = () => {
         const { title, content } = dataInput
-        // if (!title) {
-        //     setError('Please enter the title')
-        //     return
-        // }
-        // if (!content) {
-        //     setError('Please enter the content')
-        //     return
-        // }
+        if (!title) {
+            setError('Please enter the title')
+            return
+        }
+        if (!content) {
+            setError('Please enter the content')
+            return
+        }
         setError('')
         if (type === 'edit') {
             editNote()
@@ -42,24 +42,25 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
     const addNewNote = async () => {
         const { title, content, tags, state, } = dataInput
 
-        // try {
-        // const response = await axiosInstance.post('/api/note', {
-        //     title,
-        //     content,
-        //     tags,
-        //     state,
-        // })
+        try {
+            const response = await axiosInstance.post('/api/note', {
+                title,
+                content,
+                tags,
+                state,
+                columnId,
+            })
 
-        // if (response.data && response.data.note) {
-        handleShowToast('Note Added Successfully', 'add')
-        // getAllNotes()
-        onClose()
-        //     }
-        // } catch (error) {
-        //     if (error.response && error.response.data && error.response.data.message) {
-        //         setError(error.response.data.message)
-        //     }
-        // }
+            if (response.data && response.data.note) {
+                handleShowToast('Note Added Successfully', 'add')
+                getAllNotes()
+                onClose()
+            }
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message)
+            }
+        }
     }
 
     // edit current note
@@ -137,17 +138,6 @@ const AddEditNotes = ({ onClose, noteData, type, stateValue, getAllNotes, handle
                     value={dataInput.content}
                     onChange={e => { handleInputChange(e) }}
                 />
-            </div>
-            <div className="mt-3 flex flex-col gap-2">
-                <label className="input-label">state</label>
-                <select name='state' onChange={e => { handleInputChange(e) }}>
-                    {stateValue.map((stateParams, index) => (
-                        <option
-                            key={index}
-                            value={stateParams.message}>{stateParams.message == ' ' ? 'None' : stateParams.message}
-                        </option>
-                    ))}
-                </select>
             </div>
             <div className="mt-3">
                 <label className="input-label">TAGS</label>

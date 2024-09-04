@@ -55,7 +55,7 @@ function ForgottenPassword() {
             <div className='w-2/5 border rounded bg-white px-8 pt-10 pb-4'>
                 <h4 className='text-2xl font-medium mb-7'>Find your account</h4>
                 <div className="mt-3 mb-2 border-b-[1px] border-slate-300 text-sm"></div>
-                <p className='mb-3 font-normal'>Please enter your email address or mobile number to search for your account.</p>
+                <p className='mb-3 font-normal'>Please enter your email address to search for your account.</p>
                 <form onSubmit={handleForgetPassword}>
                     <input
                         type="text"

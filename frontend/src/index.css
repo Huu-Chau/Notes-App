@@ -26,7 +26,7 @@
   }
   
   .btn-primary {
-    @apply w-full text-sm bg-primary text-white p-2 rounded my-1 hover:bg-blue-600
+    @apply w-full text-sm bg-primary text-white p-2 rounded my-1 hover:bg-primaryHover
   }
 
   .btn-cancel {
@@ -54,7 +54,7 @@
   }
 
   .add-column-button {
-    @apply h-16 w-48 flex justify-center items-center cursor-pointer rounded-2xl bg-primary hover:bg-blue-600 gap-2 fixed bottom-10 right-36
+    @apply h-16 w-48 flex justify-center items-center cursor-pointer rounded-2xl bg-primary hover:bg-primaryHover gap-2 fixed bottom-10 right-10
   }
   .column-container {
     @apply bg-white w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col border-2 border-slate-500

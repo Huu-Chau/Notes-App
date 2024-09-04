@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import NoteCard from '../Cards/NoteCard';
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext } from "@dnd-kit/sortable"
@@ -9,57 +9,64 @@ import { generateId } from '../../utils/helper';
 import { axiosInstance } from '../../utils/axiosInstance'
 import { handleAxiosRequest } from '../../utils/handleAxiosRequest'
 
-function KanbanBoard(
-    // { allNotes, isSearch, onEdit, onDelete, onPinToggle }    
-) {
-    const [columns, setColumns] = useState([])
-    const [activeColumn, setActiveColumn] = useState(null)
+function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, onDelete, onPinToggle }) {
+    const [allStates, setAllStates] = useState([])
+    const [activeState, setActiveState] = useState(null)
     const [tasks, setTasks] = useState([])
     const [activeTask, setActiveTask] = useState(null)
 
     const sensors = useSensors(useSensor(PointerSensor, {
         activationConstraint: {
-            distance: 3, //300px
+            distance: 3, //3px
         }
     }))
-    const [allStates, setAllStates] = useState([])
 
     // show state to display 
     const getAllStates = async () => {
         const response = await axiosInstance.get(`/api/state/`)
 
         handleAxiosRequest(response, (data) => {
-            if (data.message) return setAllStates(data);
+            if (data.message) return setAllStates(data.states);
+        }, (err) => {
+            console.log(err.response.data.message)
+        })
+    }
+    const itemOrder = useMemo(() => allStates.map((state) => state.order), [allStates]);
+
+    async function createNewColumn() {
+        const response = await axiosInstance.post(`/api/state`, {
+            order: generateId(),
+            title: `Column ${allStates.length + 1}`
+        })
+        handleAxiosRequest(response, (data) => {
+            if (data.message) return getAllStates();
+        }, (err) => {
+            console.log(err.response.data.message)
+        })
+    }
+    async function deleteColumn(id) {
+        const response = await axiosInstance.delete(`/api/state/${id}`)
+        handleAxiosRequest(response, (data) => {
+            if (data.message) return getAllStates();
+        }, (err) => {
+            console.log(err.response.data.message)
+        })
+        // const filteredTasks = tasks.filter(task => task.columnId !== id)
+        // setTasks(filteredTasks)
+    }
+    async function updateColumn(id, title) {
+        const response = await axiosInstance.put(`/api/state`, {
+            id,
+            title,
+        })
+        handleAxiosRequest(response, (data) => {
+            if (data.message) return getAllStates();
         }, (err) => {
             console.log(err.response.data.message)
         })
     }
 
-
-    function createNewColumn() {
-        const columnToAdd = {
-            id: generateId(),
-            title: `Column ${columns.length + 1}`
-        }
-        setColumns([...columns, columnToAdd])
-    }
-
-    function deleteColumn(id) {
-        const filteredColumns = columns.filter(column => column.id !== id)
-        setColumns(filteredColumns)
-
-        const filteredTasks = tasks.filter(task => task.columnId !== id)
-        setTasks(filteredTasks)
-    }
-    function updateColumn(id, title) {
-        const newColumns = columns.map(column => {
-            if (column.id !== id) return column;
-            return { ...column, title }
-        })
-        setColumns(newColumns)
-    }
-
-    function createTask(columnId) {
+    async function createTask(columnId) {
         const newTask = {
             id: generateId(),
             columnId,
@@ -68,12 +75,12 @@ function KanbanBoard(
 
         setTasks([...tasks, newTask])
     }
-    function deleteTask(taskId) {
+    async function deleteTask(taskId) {
         const newTask = tasks.filter(task => task.id !== taskId)
 
         setTasks(newTask)
     }
-    function updateTask(taskId, content) {
+    async function updateTask(taskId, content) {
         const newTasks = tasks.map(task => {
             if (task.id !== taskId) return task;
             return { ...task, content }
@@ -81,9 +88,10 @@ function KanbanBoard(
         setTasks(newTasks)
     }
 
-    function onDragStart(event) {
+    async function onDragStart(event) {
+        console.log(event)
         if (event.active.data.current?.type === 'Column') {
-            setActiveColumn(event.active.data.current.column)
+            setActiveState(event.active.data.current.column)
             return;
         }
         if (event.active.data.current?.type === 'Task') {
@@ -91,29 +99,30 @@ function KanbanBoard(
             return;
         }
     }
-    function onDragEnd(event) {
-        setActiveColumn(null)
+    async function onDragEnd(event) {
+        setActiveState(null)
         setActiveTask(null)
 
         const { active, over } = event
         if (!over) return;
+        console.log(event)
 
-        const activeColumnId = active.id
+        const activeStateId = active.id
         const overColumnId = over.id
 
-        if (activeColumnId === overColumnId) return;
+        if (activeStateId === overColumnId) return;
 
-        setColumns(columns => {
-            const activeColumnIndex = columns.findIndex(col => col.id === activeColumnId)
-            const overColumnIndex = columns.findIndex(col => col.id === overColumnId)
+        setAllStates(states => {
+            const activeStateIndex = states.findIndex(state => state.order === activeStateId)
+            const overColumnIndex = states.findIndex(state => state.order === overColumnId)
 
-            return arrayMove(columns, activeColumnIndex, overColumnIndex)
+            return arrayMove(allStates, activeStateIndex, overColumnIndex)
         })
     }
-    function onDragOver(event) {
+    async function onDragOver(event) {
         const { active, over } = event
         if (!over) return;
-
+        console.log('over:\n', event)
         const activeId = active.id
         const overId = over.id
 
@@ -124,7 +133,6 @@ function KanbanBoard(
         const isOverATask = over.data.current?.type === 'Task'
 
         if (!isActiveATask) return;
-        console.log(tasks)
 
         if (isActiveATask && isOverATask) {
             setTasks(tasks => {
@@ -136,7 +144,6 @@ function KanbanBoard(
                 return arrayMove(tasks, activeIndex, overIndex)
             })
         }
-        console.log(tasks)
 
         // I'm dropping a task over a column
 
@@ -169,27 +176,33 @@ function KanbanBoard(
             >
                 <div className="mx-auto flex gap-4">
                     <div className="flex gap-4">
-                        <SortableContext items={columns.map((column) => column.id)}>
-                            {columns.map(column => (
-                                <ColumnState
-                                    key={column.id}
-                                    column={column}
-                                    deleteColumn={deleteColumn}
-                                    updateColumn={updateColumn}
-                                    createTask={createTask}
-                                    tasks={tasks.filter(task => task.columnId === column.id)}
-                                    deleteTask={deleteTask}
-                                    updateTask={updateTask}
-                                />
-                            ))}
+                        <SortableContext items={itemOrder}>
+                            {allStates.map(state => {
+                                const stateNotes = allNotes.filter(note => note.columnId === state._id)
+                                return (
+                                    <ColumnState
+                                        key={state.order}
+                                        column={state}
+                                        deleteColumn={deleteColumn}
+                                        updateColumn={updateColumn}
+                                        allNotes={stateNotes}
+                                        getAllNotes={getAllNotes}
+                                        onEdit={onEdit}
+                                        onDelete={onDelete}
+                                        onPinToggle={onPinToggle}
+
+                                        openNoteEdit={openNoteEdit}
+                                    />
+                                )
+                            })}
                         </SortableContext>
                     </div>
                 </div>
                 <DragOverlay>
-                    {activeColumn &&
+                    {activeState &&
                         <ColumnState
-                            column={activeColumn}
-                            tasks={tasks.filter(task => task.columnId === activeColumn.id)}
+                            column={activeState}
+                            tasks={tasks.filter(task => task.columnId === activeState.id)}
                         />
                     }
                     {/* need an overlay component cause we don't even need the function of it */}

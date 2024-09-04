@@ -22,32 +22,16 @@ function Home() {
     data: null
   })
   // Note edit functions
-  const onEditNote = (noteDetails) => {
+  const onEdit = (noteDetails) => {
     setOpenAddEditModal({
       isShown: true,
       type: 'edit',
       data: noteDetails
     })
   }
+  // 
   const closeEditNotes = () => {
     setOpenAddEditModal(!openAddEditModal.isShown)
-  }
-
-  // State edit value
-  const [openCustomModal, setOpenCustomModal] = useState({
-    isShown: false,
-    type: 'add',
-    data: null,
-  })
-  // State edit functions
-  const onEditState = () => {
-    setOpenCustomModal({
-      isShown: true,
-      data: null
-    })
-  }
-  const closeEditState = () => {
-    setOpenCustomModal(!openCustomModal.isShown)
   }
 
   //////////     Toast      ///////////////
@@ -72,6 +56,7 @@ function Home() {
       message: ''
     })
   }
+
 
   // 
   const [userInfo, setUserInfo] = useState(null)
@@ -181,64 +166,27 @@ function Home() {
 
   // close edit note in NoteCard
 
-
-
-
-
   useEffect(() => {
     getAllNotes()
     getUserInfo()
+    console.log(allNotes)
   }, [])
-
   return (
     <>
       <userInfoContext.Provider value={userInfo}>
         <Navbar onSearchNotes={onSearchNotes} handleClearSearch={handleClearSearch} />
       </userInfoContext.Provider>
 
-      <KanbanBoard
-      // allNotes={allNotes}
-      // isSearch={isSearch}
-      // onEdit={onEditNote}
-      // onDelete={onDelete}
-      // onPinToggle={onPinToggle}
-      />
-
-      {/* 2nd */}
-      <Modal
-        isOpen={openAddEditModal.isShown}
-        onRequestClose={() => { closeEditNotes() }}
-        style={{
-          overlay: {
-            backgroundColor: 'rgba(0,0,0,0.2)'
-          }
-        }}
-        contentLabel=''
-        className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5 overflow-auto'
-      >
-        <AddEditNotes
-          onClose={() => {
-            setOpenAddEditModal({ isShown: false, type: 'add', data: null })
-          }}
-          noteData={openAddEditModal.data}
-          type={openAddEditModal.type}
-          // stateValue={allStates.states}
+      <userInfoContext.Provider value={handleShowToast}>
+        <KanbanBoard
+          allNotes={allNotes}
           getAllNotes={getAllNotes}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onPinToggle={onPinToggle}
           handleShowToast={handleShowToast}
         />
-      </Modal>
-
-      <button className='w-16 h-16 flex items-center justify-center rounded-2xl bg-primary hover:bg-blue-600 fixed right-10 bottom-10'
-        onClick={() => {
-          setOpenAddEditModal({
-            isShown: true,
-            type: 'add',
-            data: null
-          })
-        }}
-      >
-        <MdAdd className='text-[32px] text-slate-50' />
-      </button>
+      </userInfoContext.Provider>
 
       <Toast
         isShown={showToastMsg.isShown}

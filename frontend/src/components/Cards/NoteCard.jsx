@@ -1,28 +1,47 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { MdOutlinePushPin, MdCreate, MdDelete } from 'react-icons/md'
 import moment from 'moment'
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 // parent: Home
-const NoteCard = ({ id, note, tags, stateMessage, stateColor, onEdit, onDelete, onPinToggle }) => {
+const NoteCard = ({ id, note, tags, onEdit, onDelete, onPinToggle }) => {
     const { title, date, content, isPinned } = note
+    const [editMode, setEditMode] = useState(false)
 
-    const colorNameToHex = (color) => {
-        const ctx = document.createElement('canvas').getContext('2d');
-        ctx.fillStyle = color;
-        return ctx.fillStyle;
+    const toggleEditMode = () => {
+        setEditMode((prev) => !prev)
+        setMouseIsOver(false)
     }
 
+    const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+        id: note._id,
+        data: {
+            type: 'Task',
+            note,
+        },
+        disabled: editMode,
+    })
+    const style = {
+        transition,
+        transform: CSS.Transform.toString(transform)
+    }
+
+
+    if (isDragging) {
+        return (<div className="task-container opacity-80 border-2 cursor-grab relative" ref={setNodeRef} style={style} />)
+    }
     return (
         <div
-            className='border rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'
+            className='border-2 rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'
+            // className="task-container task" 
+            ref={setNodeRef}
+            {...listeners}
+            {...attributes}
+            style={style}
         >
-            <span className={`absolute w-22 top-2 right-3  text-slate-800 rounded-md text-xs px-2 bg-[${colorNameToHex(stateColor)}]`}>
-                {stateMessage}
-            </span>
             <div className="flex items-center justify-between">
                 <div>
-                    <h6 className="text-sm font-semibold overflow-ellipsis overflow-anywhere">{title}</h6>
+                    <h6 className="text-sm font-semibold overflow-ellipsis overflow-anywhere text-slate-800">{title}</h6>
                     <span className="text-xs text-slate-500 font-medium">{moment(date).format('Do MMM YYYY')}</span>
                 </div>
                 <MdOutlinePushPin className={`icon-btn ${isPinned ? 'text-primary' : 'text-slate-300'}`} onClick={(e) => { onPinToggle() }} />
