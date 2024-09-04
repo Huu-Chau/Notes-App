@@ -89,15 +89,14 @@ function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, on
     }
 
     async function onDragStart(event) {
-        console.log(event)
         if (event.active.data.current?.type === 'Column') {
             setActiveState(event.active.data.current.column)
             return;
         }
-        if (event.active.data.current?.type === 'Task') {
-            setActiveTask(event.active.data.current.task)
-            return;
-        }
+        // if (event.active.data.current?.type === 'Task') {
+        //     setActiveTask(event.active.data.current.task)
+        //     return;
+        // }
     }
     async function onDragEnd(event) {
         setActiveState(null)
@@ -218,33 +217,3 @@ function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, on
 }
 
 export default KanbanBoard
-
-// {allNotes.length > 0 ?
-//     <div className='grid grid-cols-3 m-8 gap-4'>
-//         {allNotes.map((note) => {
-//             const stateMessage = note.state ? note.state.message : '';
-//             const stateColor = note.state ? note.state.color : '';
-//             return (
-//                 <div className="flex flex-col gap-4" key={note._id}>
-//                     <NoteCard
-//                         id={note._id}
-//                         note={note}
-//                         tags={[note.tags]}
-//                         stateMessage={stateMessage}
-//                         stateColor={stateColor}
-//                         onEdit={() => { onEdit(note) }}
-//                         onDelete={() => { onDelete(note._id) }}
-//                         onPinToggle={() => { onPinToggle(note) }}
-//                     />
-//                 </div>
-//             )
-//         })}
-//     </div> :
-//     <EmptyCard
-//         imgSrc={imgSrc}
-//         message={isSearch
-//             ? `Oops! No notes found matching your search`
-//             : `Start creating your first note! Click the 'ADD' button to jot down your thoughts, ideas, and reminders. Let's get started!`
-//         }
-//     />
-// }

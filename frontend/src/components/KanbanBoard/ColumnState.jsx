@@ -1,7 +1,7 @@
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import DeleteIcon from "../icons/DeleteIcon"
 import { CSS } from "@dnd-kit/utilities";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import PlusIcon from "../icons/PlusIcon";
 import NoteCard from "../Cards/NoteCard";
 import Modal from 'react-modal'
@@ -35,13 +35,10 @@ function ColumnState({
         setOpenAddEditModal(!openAddEditModal.isShown)
     }
     const [editMode, setEditMode] = useState(false)
-
-    const taskIds = useMemo(() => (
-        allNotes.map((note) => note.id)
-    ), [allNotes])
+    const taskIds = Array.isArray(allNotes) ? useMemo(() => allNotes.map((note) => note._id), [allNotes]) : [];
 
     const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
-        id: column._id,
+        id: column.order,
         data: {
             type: 'Column',
             column,
@@ -56,7 +53,6 @@ function ColumnState({
     if (isDragging) {
         return (<div className="column-container opacity-60 border-2 border-rose-500" ref={setNodeRef} style={style}></div>)
     }
-
     return (
         <div className="column-container" ref={setNodeRef} style={style}>
             <div className="title-container" {...attributes} {...listeners} onClick={() => { setEditMode(true) }}>
@@ -95,14 +91,14 @@ function ColumnState({
                             updateTask={updateTask}
                         />
                     ))} */}
-                    {allNotes.length > 0 && allNotes.map((note) => {
+                    {Array.isArray(allNotes) && allNotes.length > 0 && allNotes.map((note) => {
                         return (
                             <div className="flex flex-col gap-4" key={note._id}>
                                 <NoteCard
                                     id={note._id}
                                     note={note}
                                     tags={[note.tags]}
-                                    onEdit={() => { onEdit(note) }}
+                                    onEdit={() => { onEditNote(note) }}
                                     onDelete={() => { onDelete(note._id) }}
                                     onPinToggle={() => { onPinToggle(note) }}
                                 />

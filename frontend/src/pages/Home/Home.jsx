@@ -169,7 +169,6 @@ function Home() {
   useEffect(() => {
     getAllNotes()
     getUserInfo()
-    console.log(allNotes)
   }, [])
   return (
     <>
