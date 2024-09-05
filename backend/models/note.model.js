@@ -8,6 +8,7 @@ const noteSchema = new Schema({
     isPinned: { type: Boolean, default: false },
     userId: { type: String, required: true },
     columnId: { type: String, required: true },
+    order: { type: String },
     createdOn: { type: Date, default: new Date().getTime() }
 }, {
     collection: 'notes'

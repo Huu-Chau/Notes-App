@@ -14,9 +14,9 @@ const NoteCard = ({ id, note, tags, onEdit, onDelete, onPinToggle }) => {
     }
 
     const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
-        id: note._id,
+        id: note.order,
         data: {
-            type: 'Task',
+            type: 'Note',
             note,
         },
         disabled: editMode,
@@ -28,11 +28,11 @@ const NoteCard = ({ id, note, tags, onEdit, onDelete, onPinToggle }) => {
 
 
     if (isDragging) {
-        return (<div className="task-container opacity-80 border-2 cursor-grab relative" ref={setNodeRef} style={style} />)
+        return (<div className="h-32 border-2 rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative" ref={setNodeRef} style={style} />)
     }
     return (
         <div
-            className='border-2 rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'
+            className='h-32 border-2 rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'
             // className="task-container task" 
             ref={setNodeRef}
             {...listeners}

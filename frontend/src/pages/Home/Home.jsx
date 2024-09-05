@@ -1,15 +1,9 @@
-import Modal from 'react-modal'
-import { MdAdd } from 'react-icons/md'
-import { useNavigate } from 'react-router-dom'
 import React, { useEffect, useState, createContext } from 'react'
-import AddEditNotes from './AddEditNotes'
 import { axiosInstance } from '../../utils/axiosInstance'
 import { handleAxiosRequest } from '../../utils/handleAxiosRequest'
 import Navbar from '../../components/Navbar/Navbar'
 import Toast from '../../components/ToastMessage/Toast'
-import AddCustomState from './AddCustomState'
 import KanbanBoard from '../../components/KanbanBoard/KanbanBoard'
-import { generateId } from '../../utils/helper'
 // Parent: App
 export const userInfoContext = createContext()
 
@@ -179,6 +173,7 @@ function Home() {
       <userInfoContext.Provider value={handleShowToast}>
         <KanbanBoard
           allNotes={allNotes}
+          setAllNotes={setAllNotes}
           getAllNotes={getAllNotes}
           onEdit={onEdit}
           onDelete={onDelete}

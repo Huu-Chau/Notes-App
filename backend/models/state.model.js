@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const stateSchema = new Schema({
-    order: { type: Number },
+    order: { type: String },
     title: { type: String, required: true },
     color: { type: String, default: 'transparent' },
     userId: { type: String, required: true },

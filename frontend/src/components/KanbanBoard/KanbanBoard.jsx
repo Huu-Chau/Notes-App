@@ -4,12 +4,11 @@ import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@
 import { arrayMove, SortableContext } from "@dnd-kit/sortable"
 import PlusIcon from '../icons/PlusIcon';
 import ColumnState from './ColumnState';
-import TaskCard from './TaskCard';
 import { generateId } from '../../utils/helper';
 import { axiosInstance } from '../../utils/axiosInstance'
 import { handleAxiosRequest } from '../../utils/handleAxiosRequest'
 
-function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, onDelete, onPinToggle }) {
+function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, setAllNotes, onEdit, onDelete, onPinToggle }) {
     const [allStates, setAllStates] = useState([])
     const [activeState, setActiveState] = useState(null)
     const [tasks, setTasks] = useState([])
@@ -20,7 +19,6 @@ function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, on
             distance: 3, //3px
         }
     }))
-
     // show state to display 
     const getAllStates = async () => {
         const response = await axiosInstance.get(`/api/state/`)
@@ -66,37 +64,15 @@ function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, on
         })
     }
 
-    async function createTask(columnId) {
-        const newTask = {
-            id: generateId(),
-            columnId,
-            content: `Task ${tasks.length + 1}`,
-        }
-
-        setTasks([...tasks, newTask])
-    }
-    async function deleteTask(taskId) {
-        const newTask = tasks.filter(task => task.id !== taskId)
-
-        setTasks(newTask)
-    }
-    async function updateTask(taskId, content) {
-        const newTasks = tasks.map(task => {
-            if (task.id !== taskId) return task;
-            return { ...task, content }
-        })
-        setTasks(newTasks)
-    }
-
     async function onDragStart(event) {
-        if (event.active.data.current?.type === 'Column') {
+        if (event.active.data.current?.type === 'State') {
             setActiveState(event.active.data.current.column)
             return;
         }
-        // if (event.active.data.current?.type === 'Task') {
-        //     setActiveTask(event.active.data.current.task)
-        //     return;
-        // }
+        if (event.active.data.current?.type === 'Note') {
+            setActiveTask(event.active.data.current.note)
+            return;
+        }
     }
     async function onDragEnd(event) {
         setActiveState(null)
@@ -104,58 +80,93 @@ function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, on
 
         const { active, over } = event
         if (!over) return;
-        console.log(event)
 
         const activeStateId = active.id
         const overColumnId = over.id
 
         if (activeStateId === overColumnId) return;
 
-        setAllStates(states => {
-            const activeStateIndex = states.findIndex(state => state.order === activeStateId)
-            const overColumnIndex = states.findIndex(state => state.order === overColumnId)
+        const isActiveTask = active.data.current?.type === 'Note';
+        const isOverColumn = over.data.current?.type === 'State';
 
-            return arrayMove(allStates, activeStateIndex, overColumnIndex)
-        })
+        // setAllStates(states => {
+        //     const activeStateIndex = states.findIndex(state => state.order === activeStateId)
+        //     const overColumnIndex = states.findIndex(state => state.order === overColumnId)
+
+        //     return arrayMove(allStates, activeStateIndex, overColumnIndex)
+        // })
+        // If it's a note being dragged to a column (including an empty column)
+        if (isActiveTask && isOverColumn) {
+            // Move the note to the new column without affecting column positions
+            setAllNotes(notes => {
+                const activeIndex = notes.findIndex(note => note.columnId === activeStateId);
+
+                if (activeIndex === -1) return notes;
+
+                // Assign the note to the new column
+                notes[activeIndex].columnId = overId;
+
+                // Return the updated notes array without changing the column order
+                return [...notes];
+            });
+
+            return; // No need to proceed further since we're only moving the note
+        }
+
+        // If the dragged item is a column, handle column reordering
+        const isActiveState = active.data.current?.type === 'State';
+        if (isActiveState) {
+            setAllStates(states => {
+                const activeStateIndex = states.findIndex(state => state.order === activeStateId);
+                const overColumnIndex = states.findIndex(state => state.order === overColumnId);
+
+                if (activeStateIndex === -1 || overColumnIndex === -1) return states;
+
+                // Reorder the columns (states)
+                return arrayMove(states, activeStateIndex, overColumnIndex);
+            });
+        }
     }
     async function onDragOver(event) {
         const { active, over } = event
         if (!over) return;
-        console.log('over:\n', event)
         const activeId = active.id
         const overId = over.id
-
         if (activeId === overId) return;
 
-        // I'm dropping a task over an another task
-        const isActiveATask = active.data.current?.type === 'Task'
-        const isOverATask = over.data.current?.type === 'Task'
+        const isActiveATask = active.data.current?.type === 'Note'
+        const isOverATask = over.data.current?.type === 'Note'
 
         if (!isActiveATask) return;
 
+        // I'm dropping a task over an another task
+
         if (isActiveATask && isOverATask) {
-            setTasks(tasks => {
-                const activeIndex = tasks.findIndex(task => task.id === activeId)
-                const overIndex = tasks.findIndex(task => task.id === overId)
+            setAllNotes(notes => {
+                const activeIndex = notes.findIndex(note => note.order === activeId)
+                const overIndex = notes.findIndex(note => note.order === overId)
 
-                tasks[activeIndex].columnId = tasks[overIndex].columnId
+                if (activeIndex === -1 || overIndex === -1) return notes;
 
-                return arrayMove(tasks, activeIndex, overIndex)
+                notes[activeIndex].columnId = notes[overIndex].columnId
+
+                return arrayMove(notes, activeIndex, overIndex)
             })
         }
 
         // I'm dropping a task over a column
 
-        const isOverColumn = over.data.current?.type === 'Column'
+        const isOverColumn = over.data.current?.type === 'State'
 
         if (isActiveATask && isOverColumn) {
-            setTasks(tasks => {
-                const activeIndex = tasks.findIndex(task => task.id === activeId)
-                const overIndex = tasks.findIndex(task => task.id === overId)
-
-                tasks[activeIndex].columnId = overId
-
-                return arrayMove(tasks, activeIndex, overIndex)
+            console.log(event)
+            setAllNotes(notes => {
+                const activeIndex = notes.findIndex(note => note.columnId === activeId)
+                const overIndex = notes.findIndex(note => note.columnId === overId)
+                if (notes[activeIndex]?.columnId) {
+                    notes[activeIndex].columnId = overId
+                }
+                return arrayMove(notes, activeIndex, overIndex)
             })
         }
     }
@@ -177,7 +188,7 @@ function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, on
                     <div className="flex gap-4">
                         <SortableContext items={itemOrder}>
                             {allStates.map(state => {
-                                const stateNotes = allNotes.filter(note => note.columnId === state._id)
+                                const stateNotes = allNotes.filter(note => note.columnId === state.order.toString())
                                 return (
                                     <ColumnState
                                         key={state.order}
@@ -206,9 +217,12 @@ function KanbanBoard({ openNoteEdit, allNotes, getAllNotes, isSearch, onEdit, on
                     }
                     {/* need an overlay component cause we don't even need the function of it */}
                     {activeTask &&
-                        <TaskCard
-                            task={activeTask}
-                        />
+                        <div className="flex flex-col gap-4">
+                            <NoteCard
+                                note={activeTask}
+                                tags={[activeTask.tags]}
+                            />
+                        </div>
                     }
                 </DragOverlay>
             </DndContext>

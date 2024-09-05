@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import TagInput from '../../components/Input/TagInput';
 import { MdClose } from 'react-icons/md';
 import { axiosInstance } from '../../utils/axiosInstance';
+import { generateId } from '../../utils/helper'
 // parent: Home
 const AddEditNotes = ({ onClose, noteData, type, getAllNotes, handleShowToast, columnId, }) => {
     const [error, setError] = useState(null)
@@ -49,6 +50,7 @@ const AddEditNotes = ({ onClose, noteData, type, getAllNotes, handleShowToast, c
                 tags,
                 state,
                 columnId,
+                order: generateId(),
             })
 
             if (response.data && response.data.note) {

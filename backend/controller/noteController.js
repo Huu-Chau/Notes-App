@@ -3,16 +3,16 @@ const noteModel = require('../models/note.model')
 const stateModel = require('../models/state.model')
 
 const noteCreate = async (req, res) => {
-    const { title, content, tags, columnId } = req.body
+    const { title, content, tags, columnId, order } = req.body
     const { user } = req.user
     // check if user enters data
     if (!title) {
         return res.status(400).json({ error: true, message: 'Title is required!' })
     }
-
     if (!content) {
         return res.status(400).json({ error: true, message: 'Content is required!' })
     }
+
     try {
         const note = new noteModel({
             title,
@@ -21,6 +21,7 @@ const noteCreate = async (req, res) => {
             isPinned: false,
             userId: user._id,
             columnId,
+            order,
         })
         await note.save()
         return res.status(200).json({

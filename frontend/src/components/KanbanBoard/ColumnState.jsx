@@ -1,7 +1,7 @@
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import DeleteIcon from "../icons/DeleteIcon"
 import { CSS } from "@dnd-kit/utilities";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import PlusIcon from "../icons/PlusIcon";
 import NoteCard from "../Cards/NoteCard";
 import Modal from 'react-modal'
@@ -10,7 +10,7 @@ import { userInfoContext } from "../../pages/Home/Home";
 
 function ColumnState({
     column, deleteColumn, updateColumn,
-    openNoteEdit, allNotes, onEdit, onDelete, onPinToggle, getAllNotes,
+    allNotes, onDelete, onPinToggle, getAllNotes,
 }) {
     // Toast functions
     const handleShowToast = useContext(userInfoContext)
@@ -40,7 +40,7 @@ function ColumnState({
     const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
         id: column.order,
         data: {
-            type: 'Column',
+            type: 'State',
             column,
         },
         disabled: editMode,
@@ -132,7 +132,7 @@ function ColumnState({
                 className='w-[40%] max-h-[80%] bg-slate-50 rounded-md mx-auto mt-14 p-5 overflow-auto'
             >
                 <AddEditNotes
-                    columnId={column._id}
+                    columnId={column.order}
                     onClose={() => {
                         setOpenAddEditModal({ isShown: false, type: 'add', data: null })
                     }}
