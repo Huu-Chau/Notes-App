@@ -12,7 +12,6 @@ function VerifyEmail() {
     const handleVerify = async () => {
         const email = localStorage.getItem('email')
         const type = localStorage.getItem('type')
-        console.log(type)
         setError('')
         setSuccess('')
         try {
@@ -29,6 +28,7 @@ function VerifyEmail() {
                 }, 2000);
             }
             if (response?.data?.message && response?.data?.type == 'reset-password') {
+                localStorage.setItem('otp', validate)
                 setSuccess(response.data.message)
 
                 return setTimeout(() => {

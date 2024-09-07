@@ -26,11 +26,16 @@ function ResetPassword() {
             return setError('Passwords did not match')
         }
 
+        const otp = localStorage.getItem('otp')
+        const type = localStorage.getItem('type')
+
         // axiosInstance API call
         try {
             const response = await axiosInstance.post(`/api/auth/reset-password`, {
                 email,
                 password,
+                otp,
+                type,
             })
 
             // handle successful login response

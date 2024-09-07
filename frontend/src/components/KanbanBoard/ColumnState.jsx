@@ -7,6 +7,8 @@ import NoteCard from "../Cards/NoteCard";
 import Modal from 'react-modal'
 import AddEditNotes from "../../pages/Home/AddEditNotes";
 import { userInfoContext } from "../../pages/Home/Home";
+import { axiosInstance } from "../../utils/axiosInstance";
+import { generateId } from "../../utils/helper";
 
 function ColumnState({
     column, deleteColumn, updateColumn,
@@ -33,6 +35,32 @@ function ColumnState({
     // 
     const closeEditNotes = () => {
         setOpenAddEditModal(!openAddEditModal.isShown)
+    }
+
+    const addNewNote = async () => {
+        console.log('here')
+        try {
+            const response = await axiosInstance.post('/api/note', {
+                title: `Dummy Note ${allNotes.length + 1}`,
+                content: 'This is a dummy note.',
+                tags: [],
+                columnId: column.order,
+                order: generateId(),
+            })
+
+            if (response.data && response.data.note) {
+                handleShowToast('Note Added Successfully', 'add')
+                getAllNotes()
+                onClose()
+            }
+        } catch (error) {
+            console.error(error)
+            if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message)
+            }
+        }
+        console.log('there')
+
     }
     const [editMode, setEditMode] = useState(false)
     const taskIds = Array.isArray(allNotes) ? useMemo(() => allNotes.map((note) => note._id), [allNotes]) : [];
@@ -83,14 +111,6 @@ function ColumnState({
             </div>
             <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">
                 <SortableContext items={taskIds}>
-                    {/* {tasks.map(task => (
-                        <TaskCard
-                            key={task.id}
-                            task={task}
-                            deleteTask={deleteTask}
-                            updateTask={updateTask}
-                        />
-                    ))} */}
                     {Array.isArray(allNotes) && allNotes.length > 0 && allNotes.map((note) => {
                         return (
                             <div className="flex flex-col gap-4" key={note._id}>
@@ -104,22 +124,30 @@ function ColumnState({
                                 />
                             </div>
                         )
-                    })
-                    }
+                    })}
                 </SortableContext>
             </div>
-            <button
-                className="flex gap-2 items-center bg-primary rounded-b-sm p-4 hover:bg-primaryHover"
-                onClick={() => {
-                    setOpenAddEditModal({
-                        isShown: true,
-                        type: 'add',
-                        data: null
-                    })
-                }}
-            >
-                <PlusIcon />Add Task
-            </button>
+            <div className="flex bg-primary justify-between">
+                <button
+                    className="flex gap-2 w-[45%] items-center bg-primary rounded-b-sm p-4 hover:bg-primaryHover"
+                    onClick={() => {
+                        setOpenAddEditModal({
+                            isShown: true,
+                            type: 'add',
+                            data: null
+                        })
+                    }}
+                >
+                    <PlusIcon />Add Task
+                </button>
+                <button
+                    className="flex gap-2 items-center bg-primary rounded-b-sm p-4 hover:bg-primaryHover"
+                    onClick={addNewNote}
+                >
+                    <PlusIcon />Add New Task
+                </button>
+            </div>
+
             <Modal
                 isOpen={openAddEditModal.isShown}
                 onRequestClose={() => { closeEditNotes() }}

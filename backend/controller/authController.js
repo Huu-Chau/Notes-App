@@ -153,22 +153,18 @@ const userRegister = async (req, res) => {
 }
 // forget pass
 const userForgetPassword = async (req, res) => {
-    const { email } = req.body
+    const { email, type } = req.body
     // check if user enters data
     if (!email) {
         return res.status(400).json({ message: 'Email is required!', error: true, })
     }
 
-    // check if email is existing
-    const userInfo = await userModel.findOne({ email: email })
-    if (!userInfo) {
-        return res.status(404).json({ message: 'User not exist!', error: true, })
-    }
+    // check if email is existing (no not every unhappy case is neccessary)
 
     try {
         const OTP = generateOTP()
 
-        const isUserOtp = await otpModel.findOneAndUpdate({ email: email, type: 'reset-password' }, {
+        const isUserOtp = await otpModel.findOneAndUpdate({ email: email, type: type }, {
             otp: OTP,
         })
 
@@ -176,7 +172,7 @@ const userForgetPassword = async (req, res) => {
             const otpValidate = new otpModel({
                 otp: OTP,
                 email,
-                type: 'reset-password',
+                type,
             })
 
             await otpValidate.save()
@@ -198,13 +194,22 @@ const userForgetPassword = async (req, res) => {
 }
 // reset pass
 const userResetPassword = async (req, res) => {
-    const { email, password } = req.body
+    const { email, password, otp, type } = req.body
 
     // check if user enters data
     if (!password) {
         return res.status(400).json({ message: 'Password is required!', error: true, })
     }
     try {
+        const accountOTPValidate = await otpModel.findOne({
+            email: email,
+            type: type,
+            otp: otp,
+        })
+
+        if (!accountOTPValidate) {
+            return res.status(400).json({ message: 'Something went wrong!', error: true, })
+        }
 
         const user = await userModel.findOne({ email: email })
 

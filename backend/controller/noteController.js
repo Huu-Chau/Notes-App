@@ -72,7 +72,7 @@ const noteSearchAll = async (req, res) => {
 }
 
 const noteEdit = async (req, res) => {
-    const { title, content, tags, state, isPinned } = req.body
+    const { title, content, tags, isPinned } = req.body
     const { user } = req.user
     const { noteId } = req.params
 
@@ -83,32 +83,24 @@ const noteEdit = async (req, res) => {
         })
     }
     try {
-        const [note, stateObject] = await Promise.all([
-            noteModel.findOne({ _id: noteId, userId: user._id }),
-            state ? stateModel.findOne({ message: state }) : null
-        ])
+        const note = await noteModel.findOne({ _id: noteId, userId: user._id })
 
         // unhappy cases
         if (!note) {
             return res.status(404).json({ error: true, message: 'No note found' })
         }
 
-        if (!stateObject && state) {
-            return res.status(404).json({ error: true, message: 'No state found' })
-        }
         // insert value
         note.title = title || note.title;
         note.content = content || note.content;
         note.tags = tags || note.tags;
         note.isPinned = isPinned !== undefined ? isPinned : note.isPinned;
-        note.state = stateObject?._id || note.state;
 
         await note.save()
 
         return res.status(200).json({
             message: 'update note successfully',
             note,
-            stateObject,
             error: false,
         })
     } catch (error) {

@@ -41,14 +41,13 @@ const AddEditNotes = ({ onClose, noteData, type, getAllNotes, handleShowToast, c
 
     // add new note
     const addNewNote = async () => {
-        const { title, content, tags, state, } = dataInput
+        const { title, content, tags, } = dataInput
 
         try {
             const response = await axiosInstance.post('/api/note', {
                 title,
                 content,
                 tags,
-                state,
                 columnId,
                 order: generateId(),
             })
@@ -78,13 +77,12 @@ const AddEditNotes = ({ onClose, noteData, type, getAllNotes, handleShowToast, c
                 title: dataInput.title && dataInput.title !== previousDataInput.title ? dataInput.title : undefined,
                 content: dataInput.content && dataInput.content !== previousDataInput.content ? dataInput.content : undefined,
                 tags: dataInput.tags && dataInput.tags !== previousDataInput.tags ? dataInput.tags : undefined,
-                state: dataInput.state && dataInput.state !== previousDataInput.state ? dataInput.state : undefined,
             }
             const response = await axiosInstance.patch(`/api/note/${noteId}`, payload)
 
             if (response.data && (response.data.note || response.data.stateObject)) {
                 handleShowToast('Note Updated Successfully!', 'add')
-                // getAllNotes()
+                getAllNotes()
                 onClose()
             }
         } catch (error) {
