@@ -38,7 +38,6 @@ function ColumnState({
     }
 
     const addNewNote = async () => {
-        console.log('here')
         try {
             const response = await axiosInstance.post('/api/note', {
                 title: `Dummy Note ${allNotes.length + 1}`,

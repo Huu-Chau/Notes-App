@@ -32,8 +32,7 @@ const NoteCard = ({ id, note, tags, onEdit, onDelete, onPinToggle }) => {
     }
     return (
         <div
-            className='h-32 border-2 rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'
-            // className="task-container task" 
+            className='h-fit border-2 rounded p-4 pt-6 bg-white hover:shadow-xl transition-all ease-in-out relative'
             ref={setNodeRef}
             {...listeners}
             {...attributes}
